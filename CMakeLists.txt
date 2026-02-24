@@ -27,7 +27,15 @@ FetchContent_Declare(glm
         GIT_TAG 0.9.9.8
 )
 
-FetchContent_MakeAvailable(raylib spdlog glm)
+# Glaze
+FetchContent_Declare(
+        glaze
+        GIT_REPOSITORY https://github.com/stephenberry/glaze.git
+        GIT_TAG      v4.3.0
+        GIT_SHALLOW  TRUE
+)
+
+FetchContent_MakeAvailable(raylib spdlog glm glaze)
 
 # Add sub-projects
 add_subdirectory(Harmony)
