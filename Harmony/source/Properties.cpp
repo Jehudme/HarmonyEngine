@@ -1,22 +1,11 @@
 #include "Harmony/Properties.h"
+#include "PropertiesRegistry.inc"
 
 #include <glaze/glaze.hpp>
 #include <map>
 #include <vector>
 #include <stdexcept>
 #include <fstream>
-
-using StringMap = std::map<std::string, std::string>;
-
-#define PROPERTIES_SUPPORTED_TYPES(VisitorMacro) \
-    VisitorMacro(int) \
-    VisitorMacro(float) \
-    VisitorMacro(double) \
-    VisitorMacro(bool) \
-    VisitorMacro(std::string) \
-    VisitorMacro(std::vector<int>) \
-    VisitorMacro(std::vector<std::string>) \
-    VisitorMacro(StringMap)
 
 namespace Harmony {
 
