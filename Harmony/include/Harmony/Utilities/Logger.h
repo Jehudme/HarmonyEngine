@@ -11,7 +11,7 @@ namespace Harmony {
     public:
         enum class Level { TRACE, DEBUG, INFO, WARNING, ERROR, CRITICAL };
 
-        explicit Logger(const Properties& properties);
+        explicit Logger(const Properties& properties = Properties());
         ~Logger();
 
         template<typename... Args>
