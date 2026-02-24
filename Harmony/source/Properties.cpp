@@ -1,5 +1,5 @@
-#include "Harmony/Properties.h"
-#include "PropertiesRegistry.inc"
+#include "Harmony/Utilities/Properties.h"
+#include "Harmony/Details/PropertiesRegistry.inc"
 
 #include <glaze/glaze.hpp>
 #include <map>
@@ -14,6 +14,10 @@ namespace Harmony {
     };
 
     Properties::Properties() : pimpl(std::make_unique<Impl>()) {}
+
+    Properties::Properties(const std::filesystem::path& filepath) : Properties() {
+        load(filepath);
+    }
     Properties::~Properties() = default;
 
     Properties::Properties(const Properties& other) : pimpl(std::make_unique<Impl>()) {
@@ -47,8 +51,8 @@ namespace Harmony {
         #define PROPERTIES_SET_CASE(Type) \
             if (type == typeid(Type)) { \
                 std::string conversion_buffer; \
-                glz::write_json(*static_cast<const Type*>(ptr), conversion_buffer); \
-                glz::read_json(target_node, conversion_buffer); \
+                (void)glz::write_json(*static_cast<const Type*>(ptr), conversion_buffer); \
+                (void)glz::read_json(target_node, conversion_buffer); \
                 return; \
             }
 
@@ -73,7 +77,7 @@ namespace Harmony {
         #define PROPERTIES_GET_CASE(Type) \
             if (type == typeid(Type)) { \
                 std::string conversion_buffer; \
-                glz::write_json(*current_node, conversion_buffer); \
+                (void)glz::write_json(*current_node, conversion_buffer); \
                 Type temporary_result{}; \
                 auto parse_error = glz::read_json(temporary_result, conversion_buffer); \
                 if (!parse_error) { \
@@ -129,12 +133,12 @@ namespace Harmony {
         std::ifstream file_stream(filepath);
         if (!file_stream.is_open()) return;
         std::string buffer((std::istreambuf_iterator<char>(file_stream)), std::istreambuf_iterator<char>());
-        glz::read_json(pimpl->data, buffer);
+        (void)glz::read_json(pimpl->data, buffer);
     }
 
     void Properties::save(const std::filesystem::path& filepath) const {
         std::string buffer;
-        glz::write_json(pimpl->data, buffer);
+        (void)glz::write_json(pimpl->data, buffer);
         std::ofstream file_stream(filepath);
         file_stream << buffer;
     }

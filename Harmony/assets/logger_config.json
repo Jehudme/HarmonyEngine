@@ -1,0 +1,36 @@
+{
+  "Logger": {
+    "Name": "HarmonyEngine",
+    "Level": "trace",
+    "Pattern": "[%Y-%m-%d %H:%M:%S.%e] [%n] [%^%l%$] [thread %t] %v",
+    "FlushOn": "err",
+    "Async": {
+      "Enabled": false,
+      "QueueSize": 8192,
+      "ThreadCount": 1
+    },
+    "Sinks": {
+      "Console": {
+        "Enabled": true,
+        "Color": true
+      },
+      "BasicFile": {
+        "Enabled": false,
+        "Path": "logs/basic_log.txt",
+        "Truncate": false
+      },
+      "RotatingFile": {
+        "Enabled": true,
+        "Path": "logs/harmony_rotating.log",
+        "MaxSizeMB": 5,
+        "MaxFiles": 3
+      },
+      "DailyFile": {
+        "Enabled": false,
+        "Path": "logs/harmony_daily.log",
+        "Hour": 0,
+        "Minute": 0
+      }
+    }
+  }
+}

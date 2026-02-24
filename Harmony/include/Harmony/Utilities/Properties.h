@@ -14,6 +14,8 @@ namespace Harmony {
         using Path = std::vector<std::string>;
 
         Properties();
+        explicit Properties(const std::filesystem::path& filepath);
+
         ~Properties();
 
         Properties(const Properties& other);
@@ -25,8 +27,8 @@ namespace Harmony {
         template<typename Type>
         std::optional<Type> get(const Path& key_path) const;
 
-        std::optional<Keys> getKeys(const std::vector<std::string>& key_path = {}) const;
-        std::optional<Properties> getSubProperties(const std::vector<std::string>& key_path) const;
+        [[nodiscard]] std::optional<Keys> getKeys(const std::vector<std::string>& key_path = {}) const;
+        [[nodiscard]] std::optional<Properties> getSubProperties(const std::vector<std::string>& key_path) const;
 
         void load(const std::filesystem::path& filepath);
         void save(const std::filesystem::path& filepath) const;
@@ -39,4 +41,4 @@ namespace Harmony {
         bool _get_raw(const std::vector<std::string>& key_path, void* ptr, std::type_index type) const;
     };
 }
-#include "Properties.inl"
+#include <Harmony/Utilities/Properties.inl>

@@ -6,8 +6,12 @@ file(GLOB_RECURSE ENGINE_HEADERS "include/*.h" "source/*.h")
 
 # Define the static library
 add_library(Harmony STATIC ${ENGINE_SOURCES} ${ENGINE_HEADERS}
-        include/Harmony/Properties.h
-        include/Harmony/Properties.inl)
+        include/Harmony/Utilities/Properties.h
+        include/Harmony/Utilities/Properties.inl
+        source/Logger.cpp
+        include/Harmony/Utilities/Logger.h
+        include/Harmony/Utilities/Logger.inl
+        include/Harmony/Utilities/Guarded.h)
 
 # Professional Scoping
 target_link_libraries(Harmony

@@ -12,9 +12,8 @@
     using Map = std::map<std::string, Scalar>; \
     using UMap = std::unordered_map<std::string, Scalar>;
 
-// Define Aliases for every type set
+// Define Aliases for every type set (char removed to prevent string_view conversion errors)
 DEFINE_TYPE_GROUP(bool,         BoolVec,   BoolMap,   BoolUMap)
-DEFINE_TYPE_GROUP(char,         CharVec,   CharMap,   CharUMap)
 DEFINE_TYPE_GROUP(float,        FloatVec,  FloatMap,  FloatUMap)
 DEFINE_TYPE_GROUP(double,       DoubleVec, DoubleMap, DoubleUMap)
 DEFINE_TYPE_GROUP(std::string,  StringVec, StringMap, StringUMap)
@@ -33,7 +32,6 @@ DEFINE_TYPE_GROUP(uint64_t,     UInt64Vec, UInt64Map, UInt64UMap)
 
 #define PROPERTIES_SUPPORTED_TYPES(Visitor) \
     Visitor(bool)          Visitor(BoolVec)   Visitor(BoolMap)   Visitor(BoolUMap)   \
-    Visitor(char)          Visitor(CharVec)   Visitor(CharMap)   Visitor(CharUMap)   \
     Visitor(float)         Visitor(FloatVec)  Visitor(FloatMap)  Visitor(FloatUMap)  \
     Visitor(double)        Visitor(DoubleVec) Visitor(DoubleMap) Visitor(DoubleUMap) \
     Visitor(std::string)   Visitor(StringVec) Visitor(StringMap) Visitor(StringUMap) \
@@ -45,3 +43,4 @@ DEFINE_TYPE_GROUP(uint64_t,     UInt64Vec, UInt64Map, UInt64UMap)
     Visitor(uint16_t)      Visitor(UInt16Vec) Visitor(UInt16Map) Visitor(UInt16UMap) \
     Visitor(uint32_t)      Visitor(UInt32Vec) Visitor(UInt32Map) Visitor(UInt32UMap) \
     Visitor(uint64_t)      Visitor(UInt64Vec) Visitor(UInt64Map) Visitor(UInt64UMap)
+

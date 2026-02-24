@@ -1,6 +1,4 @@
+#pragma once
 
-
-#ifndef HARMONY_HARMONY_H
-#define HARMONY_HARMONY_H
-
-#endif //HARMONY_HARMONY_H
+#include "Utilities/Logger.h"
+#include "Utilities/Properties.h"
