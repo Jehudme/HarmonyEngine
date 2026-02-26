@@ -1,4 +1,4 @@
-#include "Harmony/Systems/Controller.h"
+#include "Harmony/Core/Controller.h"
 
 namespace Harmony {
     Controller::Controller(Engine& engine) : state(State::Shutdown), engine(engine) {

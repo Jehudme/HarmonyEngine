@@ -14,11 +14,14 @@ add_library(Harmony STATIC ${ENGINE_SOURCES} ${ENGINE_HEADERS}
         include/Harmony/Utilities/Guarded.h
         include/Harmony/Core/Controller.h
         include/Harmony/Core/Service.h
-        source/Systems/Controller.cpp
-        source/Systems/Service.cpp
+        source/Core/Controller.cpp
+        source/Core/Service.cpp
         include/Harmony/Interfaces/IEngine.h
         include/Harmony/Interfaces/IWindow.h
-        include/Harmony/Utilities/Uncopyable.h)
+        include/Harmony/Utilities/Uncopyable.h
+        include/Harmony/Systems/Registry.h
+        include/Harmony/Systems/Registry.inl
+)
 
 # Professional Scoping
 target_link_libraries(Harmony

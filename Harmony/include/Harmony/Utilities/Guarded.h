@@ -12,7 +12,6 @@ namespace Harmony {
     public:
         template<typename ...Args>
         explicit Guarded(Args&& ...args);
-
         ~Guarded() = default;
 
         Guarded(const Guarded& other);
