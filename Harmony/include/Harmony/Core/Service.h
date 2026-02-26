@@ -1,7 +1,7 @@
 #pragma once
 #include <condition_variable>
 #include <thread>
-#include <Harmony/Systems/Controller.h>
+#include <Harmony/Core/Controller.h>
 
 namespace Harmony {
     class Engine;
