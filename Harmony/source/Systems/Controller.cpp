@@ -1,16 +1,17 @@
 #include "Harmony/Systems/Controller.h"
 
-#include <Harmony/Systems/Controller.h>
-
 namespace Harmony {
     Controller::Controller(Engine& engine) : state(State::Shutdown), engine(engine) {
+        logger = std::make_unique<Logger>();
     }
 
     void Controller::Initialize(const Properties& properties) {
         std::lock_guard<std::mutex> lock(mutex);
 
         std::optional<Properties> loggerProperties = properties.getSubProperties({"logger"});
-        if (loggerProperties.has_value()) logger = std::make_unique<Logger>(*loggerProperties);
+        if (loggerProperties.has_value()) {
+            logger = std::make_unique<Logger>(*loggerProperties);
+        }
 
         logger->trace("Initializing... ");
         onInitialize(properties);
@@ -53,5 +54,4 @@ namespace Harmony {
 
         logger->trace("Processed events");
     }
-
 }
