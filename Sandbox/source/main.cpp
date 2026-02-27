@@ -1,62 +1,110 @@
 #include <iostream>
 #include <string>
-#include <Harmony/Systems/Registry.h>
+#include "Harmony/Systems/Registry.h" // Adjust path if necessary
 
-/**
- * Test Interface
- */
-class IBase {
+// ==========================================
+// 1. Dummy Classes for Testing
+// ==========================================
+class Entity
+{
 public:
-    virtual ~IBase() = default;
-    virtual void speak() = 0;
+    virtual ~Entity() = default;
+    virtual void debugPrint() const = 0;
 };
 
-/**
- * Concrete Implementation
- */
-class Derived : public IBase {
+class Player : public Entity
+{
 public:
-    Derived(const std::string& message) : m_message(message) {}
+    Player() { std::cout << "   [Allocated] Player created.\n"; }
+    ~Player() override { std::cout << "   [Destroyed] Player destroyed.\n"; }
 
-    void speak() override {
-        std::cout << "Derived says: " << m_message << std::endl;
+    void debugPrint() const override {
+        std::cout << "   -> I am the Player.\n";
     }
-
-private:
-    std::string m_message;
 };
 
-int main() {
-    try {
-        // 1. Save a factory that takes a std::string argument
-        // Matches your Registry::save implementation
-        Harmony::Registry::save<IBase, Derived, std::string>("tester");
-
-        // 2. Attempt a duplicate save to test your error handling
-        // This should trigger the logger.error and throw an exception
-        // Harmony::Registry::save<IBase, Derived, std::string>("tester");
-
-        // 3. Create the object using the variadic factory
-        // Use create() with the identifier and matching constructor arguments
-        std::unique_ptr<IBase> instance = Harmony::Registry::create<IBase>("tester", std::string("Hello Harmony!"));
-
-        if (instance) {
-            instance->speak();
-        }
-
-        // 4. Test freeing the factory
-        // Removes the mapping from the static m_registry
-        Harmony::Registry::free<IBase, std::string>("tester");
-
-        // 5. Verify it is gone
-        auto failedInstance = Harmony::Registry::create<IBase>("tester", std::string("Should fail"));
-        if (!failedInstance) {
-            std::cout << "Registry successfully freed the factory." << std::endl;
-        }
-
-    } catch (const std::exception& e) {
-        std::cerr << "Caught expected exception: " << e.what() << std::endl;
+class Enemy : public Entity
+{
+    int m_health;
+    float m_speed;
+public:
+    Enemy(int health, float speed) : m_health(health), m_speed(speed) {
+        std::cout << "   [Allocated] Enemy created (HP: " << m_health << ", Speed: " << m_speed << ").\n";
     }
+    ~Enemy() override { std::cout << "   [Destroyed] Enemy destroyed.\n"; }
+
+    void debugPrint() const override {
+        std::cout << "   -> I am an Enemy.\n";
+    }
+};
+
+class NPC : public Entity
+{
+public:
+    NPC() { std::cout << "   [Allocated] NPC created.\n"; }
+    ~NPC() override { std::cout << "   [Destroyed] NPC destroyed.\n"; }
+    void debugPrint() const override { std::cout << "   -> I am an NPC.\n"; }
+};
+
+// ==========================================
+// 2. Automatic Registration (Runs BEFORE main)
+// ==========================================
+// Note: We don't register NPC here to test manual registration later.
+
+HARMONY_REGISTER(Entity, Player, "Hero")
+HARMONY_REGISTER(Entity, Enemy, "Orc", int, float)
+
+
+// ==========================================
+// 3. The Main Test Loop
+// ==========================================
+int main()
+{
+    std::cout << "\n--- Harmony Engine Registry Test ---\n\n";
+
+    // --- Test A: Successful Creation ---
+    std::cout << "[Test A] Creating registered objects...\n";
+    {
+        auto player = Harmony::Registry::create<Entity>("Hero");
+        if (player) player->debugPrint();
+
+        auto orc = Harmony::Registry::create<Entity>("Orc", 100, 2.5f);
+        if (orc) orc->debugPrint();
+    } // Objects go out of scope here and should be destroyed.
+    std::cout << "\n";
+
+    // --- Test B: Error Handling (Wrong Arguments) ---
+    std::cout << "[Test B] Trying to create 'Orc' with wrong arguments...\n";
+    // Orc expects (int, float). Passing (int, int) or just (int) should fail gracefully.
+    auto badOrc = Harmony::Registry::create<Entity>("Orc", 100, 50);
+    if (!badOrc) {
+        std::cout << "   -> Success: Registry rejected the invalid arguments.\n";
+    }
+    std::cout << "\n";
+
+    // --- Test C: Error Handling (Unregistered Name) ---
+    std::cout << "[Test C] Trying to create an unregistered object...\n";
+    auto ghost = Harmony::Registry::create<Entity>("Ghost");
+    if (!ghost) {
+        std::cout << "   -> Success: Registry returned nullptr for unknown name.\n";
+    }
+    std::cout << "\n";
+
+    // --- Test D: Manual Registration & Unregistration ---
+    std::cout << "[Test D] Manual Registration of 'TownGuard'...\n";
+    HARMONY_REGISTER_MANUAL(Entity, NPC, "TownGuard");
+
+    auto guard = Harmony::Registry::create<Entity>("TownGuard");
+    if (guard) guard->debugPrint();
+
+    std::cout << "Freeing 'TownGuard'...\n";
+    HARMONY_UNREGISTER_MANUAL("TownGuard");
+
+    auto guardAfterFree = Harmony::Registry::create<Entity>("TownGuard");
+    if (!guardAfterFree) {
+        std::cout << "   -> Success: TownGuard could not be created after being freed.\n";
+    }
+    std::cout << "\n--- End of Test ---\n";
 
     return 0;
 }
