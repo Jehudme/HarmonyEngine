@@ -2,7 +2,7 @@
 
 namespace Harmony {
 
-    Service::Service(Engine& engine) : Controller(engine) {
+    Service::Service(IEngine& engine) : Controller(engine) {
     }
 
     // ========================================================================

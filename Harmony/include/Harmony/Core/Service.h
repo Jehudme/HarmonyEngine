@@ -4,13 +4,13 @@
 #include <Harmony/Core/Controller.h>
 
 namespace Harmony {
-    class Engine;
+    class IEngine;
 
     class Service : public Controller
     {
     public:
-        explicit Service(Engine& engine);
-        virtual ~Service() override = default;
+        explicit Service(IEngine& engine);
+        ~Service() override = default;
 
         void start();
         void stop();

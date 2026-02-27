@@ -4,13 +4,13 @@
 #include "Harmony/Utilities/Properties.h"
 
 namespace Harmony {
-    class Engine;
+    class IEngine;
 
     class Controller {
     public:
         enum class State { Initialized, Running, Paused, Shutdown };
 
-        explicit Controller(Engine& engine);
+        explicit Controller(IEngine& engine);
         virtual ~Controller() = default;
 
         virtual void Initialize(const Properties& properties);
@@ -31,6 +31,6 @@ namespace Harmony {
         std::unique_ptr<Logger> logger;
         Guarded<State> state;
         std::mutex mutex;
-        Engine& engine;
+        IEngine& engine;
     };
 }

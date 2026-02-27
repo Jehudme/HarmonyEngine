@@ -19,8 +19,11 @@ add_library(Harmony STATIC ${ENGINE_SOURCES} ${ENGINE_HEADERS}
         include/Harmony/Interfaces/IEngine.h
         include/Harmony/Interfaces/IWindow.h
         include/Harmony/Utilities/Uncopyable.h
-        include/Harmony/Systems/Registry.h
-        include/Harmony/Systems/Registry.inl
+        include/Harmony/Core/Registry.h
+        include/Harmony/Core/Registry.inl
+        include/Harmony/Systems/Engine.h
+        include/Harmony/Systems/Window.h
+        include/Harmony/Systems/Window.h
 )
 
 # Professional Scoping

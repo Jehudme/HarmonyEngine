@@ -66,4 +66,4 @@ namespace Harmony
 #define HARMONY_UNREGISTER_MANUAL(Name) \
     ::Harmony::Registry::free(Name)
 
-#include "Harmony/Systems/Registry.inl"
+#include "Registry.inl"

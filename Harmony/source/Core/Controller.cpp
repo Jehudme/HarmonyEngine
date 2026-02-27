@@ -1,7 +1,7 @@
 #include "Harmony/Core/Controller.h"
 
 namespace Harmony {
-    Controller::Controller(Engine& engine) : state(State::Shutdown), engine(engine) {
+    Controller::Controller(IEngine& engine) : state(State::Shutdown), engine(engine) {
         logger = std::make_unique<Logger>();
     }
 

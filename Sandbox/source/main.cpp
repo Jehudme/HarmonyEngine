@@ -1,6 +1,6 @@
 #include <iostream>
 #include <string>
-#include "Harmony/Systems/Registry.h" // Adjust path if necessary
+#include "../../Harmony/include/Harmony/Core/Registry.h"
 
 // ==========================================
 // 1. Dummy Classes for Testing
