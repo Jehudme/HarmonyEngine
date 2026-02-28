@@ -2,11 +2,12 @@
 #include "Harmony/Utilities/Guarded.h"
 #include "Harmony/Utilities/Logger.h"
 #include "Harmony/Utilities/Properties.h"
+#include "Harmony/Utilities/Uncopyable.h"
 
 namespace Harmony {
     class IEngine;
 
-    class Controller {
+    class Controller : private Uncopyable {
     public:
         enum class State { Initialized, Running, Paused, Shutdown };
 

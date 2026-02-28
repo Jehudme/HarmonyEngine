@@ -23,18 +23,15 @@ namespace Harmony
         Registry(Registry&&) = delete;
         Registry& operator=(Registry&&) = delete;
 
-        // save still needs Args to deduce the constructor signature, but the macro handles it.
         template<typename Base, typename Derived, typename ...Args>
         static void save(const std::string& name);
 
-        // free no longer requires ANY templates.
         static void free(const std::string& name);
 
         template<typename Type, typename ...Args>
         static std::unique_ptr<Type> create(const std::string& name, Args&& ...args);
 
     private:
-        // Flattened Map: Name -> Factory
         using RegistryMap = std::unordered_map<std::string, std::any>;
 
         static inline Guarded<RegistryMap> m_registry = Guarded<RegistryMap>();
