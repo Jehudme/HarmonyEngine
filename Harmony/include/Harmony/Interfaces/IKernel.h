@@ -1,6 +1,6 @@
 #pragma once
 #include "Harmony/Utilities/Properties.h"
-#include "Harmony/Core/Controller.h"
+#include "Harmony/Core/Extension.h"
 
 namespace Harmony
 {
@@ -17,15 +17,15 @@ namespace Harmony
         virtual void render() = 0;
         virtual void event() = 0;
 
-        virtual Controller& controller(const std::string& type) = 0;
+        virtual Extension& extension(const std::string& type) = 0;
 
-        template<typename ControllerType>
-        ControllerType& controller()
+        template<typename ExtensionType>
+        ExtensionType& extension()
         {
-            static_assert(std::is_base_of_v<Controller, ControllerType>,
-                  "T must derive from Controller to be used in Controller<T>()");
+            static_assert(std::is_base_of_v<Extension, ExtensionType>,
+                  "T must derive from Extension to be used in extension<T>()");
 
-            return controller(ControllerType::getType());
+            return extension(ExtensionType::getType());
         }
     };
 

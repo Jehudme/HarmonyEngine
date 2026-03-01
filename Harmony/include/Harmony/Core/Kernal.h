@@ -22,7 +22,7 @@ namespace Harmony
         void render() override;
         void event() override;
 
-        Controller& controller(const std::string& type) override;
+        Extension& extension(const std::string& type) override;
 
     private:
         std::unique_ptr<flecs::world> m_world;

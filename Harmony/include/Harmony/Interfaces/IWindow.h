@@ -5,7 +5,7 @@
 #include <tuple>
 
 #include <Harmony/Utilities/Properties.h>
-#include "Harmony/Core/Controller.h"
+#include "Harmony/Core/Extension.h"
 
 namespace Harmony
 {
@@ -25,10 +25,10 @@ namespace Harmony
         BorderlessWindowed
     };
 
-    class IWindow : public Controller
+    class IWindow : public Extension
     {
     public:
-        explicit IWindow(const std::string& name, Engine& engine) : Controller(name, "window", engine) {}
+        explicit IWindow(const std::string& name, Engine& engine) : Extension(name, "window", engine) {}
         ~IWindow() override = default;
 
         // ==========================================

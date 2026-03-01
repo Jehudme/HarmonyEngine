@@ -1,15 +1,15 @@
 #pragma once
 #include <condition_variable>
 #include <thread>
-#include <Harmony/Core/Controller.h>
+#include <Harmony/Core/Extension.h>
 
 namespace Harmony {
     class Engine;
 
-    class Service : public Controller
+    class Service : public Extension
     {
     public:
-        explicit Service(const std::string& name, const std::string type, Engine& engine);
+        explicit Service(const std::string& name, const std::string& type, Engine& engine);
         ~Service() override = default;
 
         void start();

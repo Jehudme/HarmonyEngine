@@ -14,8 +14,10 @@ add_library(Harmony OBJECT ${ENGINE_SOURCES} ${ENGINE_HEADERS}
         include/Harmony/Core/Logger.h
         include/Harmony/Utilities/Logger.inl
         include/Harmony/Utilities/Guarded.h
+        include/Harmony/Core/Extension.h
         include/Harmony/Core/Controller.h
         include/Harmony/Core/Service.h
+        source/Core/Extension.cpp
         source/Core/Controller.cpp
         source/Core/Service.cpp
         include/Harmony/Interfaces/IWindow.h
