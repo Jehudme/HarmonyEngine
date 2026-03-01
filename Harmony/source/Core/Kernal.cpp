@@ -42,7 +42,7 @@ namespace Harmony
     {
         m_world->each<std::unique_ptr<Controller>>([](std::unique_ptr<Controller>& instance) {
             if (instance) return instance->update();
-            Logger::instance().critical("Harmony::Kernel::finalize - Failed to finalize module instance");
+            Logger::instance().critical("Harmony::Kernel::update - Failed to update module instance");
         });
     }
 
@@ -50,7 +50,7 @@ namespace Harmony
     {
         m_world->each<std::unique_ptr<Controller>>([](std::unique_ptr<Controller>& instance) {
             if (instance) return instance->render();
-            Logger::instance().critical("Harmony::Kernel::finalize - Failed to finalize module instance");
+            Logger::instance().critical("Harmony::Kernel::render - Failed to render module instance");
         });
     }
 
@@ -58,7 +58,7 @@ namespace Harmony
     {
         m_world->each<std::unique_ptr<Controller>>([](std::unique_ptr<Controller>& instance) {
             if (instance) return instance->event();
-            Logger::instance().critical("Harmony::Kernel::finalize - Failed to finalize module instance");
+            Logger::instance().critical("Harmony::Kernel::event - Failed to process event for module instance");
         });
     }
 

@@ -1,0 +1,2 @@
+/usr/bin/ar qc libHarmony.a CMakeFiles/Harmony.dir/source/Core/Controller.cpp.o CMakeFiles/Harmony.dir/source/Core/Engine.cpp.o CMakeFiles/Harmony.dir/source/Core/Kernal.cpp.o CMakeFiles/Harmony.dir/source/Core/Service.cpp.o CMakeFiles/Harmony.dir/source/Modules/RaylibWindow.cpp.o CMakeFiles/Harmony.dir/source/Utilities/Logger.cpp.o CMakeFiles/Harmony.dir/source/Utilities/Properties.cpp.o
+/usr/bin/ranlib libHarmony.a

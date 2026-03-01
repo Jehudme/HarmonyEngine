@@ -206,8 +206,6 @@ namespace Harmony
         return ::GetClipboardText();
     }
 
-} // namespace Harmony
-
-namespace Harmony {
     HARMONY_REGISTER(Controller, RaylibWindow, "window_raylib", Engine&)
-}
+
+} // namespace Harmony
