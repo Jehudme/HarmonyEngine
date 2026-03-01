@@ -100,10 +100,24 @@ namespace Harmony {
         return logger;
     }
 
+    Logger::Context& Logger::contextInstance()
+    {
+        // Each thread owns its own context stack so that concurrent extensions
+        // do not interfere with each other's logger scope.
+        static thread_local Context ctx;
+        return ctx;
+    }
+
     Logger& Logger::context()
     {
-        static thread_local Context context;
-        return *context.get();
+        Logger* logger = contextInstance().get();
+        if (!logger) {
+            // No extension has pushed a logger yet; warn once and fall back to the
+            // global logger so callers always receive a valid reference.
+            Logger::global().warn("No context logger found, falling back to global.");
+            return Logger::global();
+        }
+        return *logger;
     }
 
 

@@ -9,7 +9,7 @@ namespace Harmony
         explicit RaylibWindow(Engine& engine);
         ~RaylibWindow() override = default;
 
-        // Controller overrides
+        // Extension overrides
         void onInitialize(const Properties& properties) override;
         void onFinalize() override;
         void onUpdate() override;

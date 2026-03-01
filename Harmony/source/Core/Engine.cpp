@@ -15,7 +15,7 @@ namespace Harmony
     }
 
     Engine::~Engine() {
-        Controller::finalize();
+        Extension::finalize();
     }
 
     void Engine::onInitialize(const Properties& properties)
@@ -38,16 +38,14 @@ namespace Harmony
         kernel->event();
     }
 
-    // --- Gestion du cycle de vie du Service ---
-
     void Engine::onStart()
     {
-        logger->info("Engine Service is now running.");
+        m_logger->info("Engine service is now running.");
     }
 
     void Engine::onShutdown()
     {
-        logger->info("Engine Service shutting down...");
+        m_logger->info("Engine service is shutting down...");
     }
 
     void Engine::onFinalize()
@@ -55,7 +53,7 @@ namespace Harmony
         kernel->finalize();
     }
 
-    void Engine::onPause()  { logger->info("Engine Paused."); }
-    void Engine::onResume() { logger->info("Engine Resumed."); }
+    void Engine::onPause()  { m_logger->info("Engine service paused."); }
+    void Engine::onResume() { m_logger->info("Engine service resumed."); }
 
 } // namespace Harmony

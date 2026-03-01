@@ -39,6 +39,9 @@ namespace Harmony {
 
         class Context;
 
+        // Returns the thread-local Context instance used for push/pop guard operations.
+        static Context& contextInstance();
+
     private:
         void dispatch_log(Level level, const std::string& message) const;
 

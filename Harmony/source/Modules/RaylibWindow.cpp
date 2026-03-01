@@ -11,7 +11,7 @@ namespace Harmony
         : IWindow("window_raylib", engine) {}
 
     // ==========================================
-    // Controller overrides
+    // Extension overrides
     // ==========================================
 
     void RaylibWindow::onInitialize(const Properties& properties)
@@ -20,21 +20,21 @@ namespace Harmony
         if (auto optWidth = properties.get<int32_t>({"width"})) {
             width = *optWidth;
         } else {
-            logger->warn("Property 'width' not found. Using default: {}", width);
+            m_logger->warn("Property 'width' not found. Using default: {}", width);
         }
 
         int32_t height = DEFAULT_WINDOW_HEIGHT;
         if (auto optHeight = properties.get<int32_t>({"height"})) {
             height = *optHeight;
         } else {
-            logger->warn("Property 'height' not found. Using default: {}", height);
+            m_logger->warn("Property 'height' not found. Using default: {}", height);
         }
 
         std::string title = DEFAULT_WINDOW_TITLE;
         if (auto optTitle = properties.get<std::string>({"title"})) {
             title = *optTitle;
         } else {
-            logger->warn("Property 'title' not found. Using default: {}", title);
+            m_logger->warn("Property 'title' not found. Using default: {}", title);
         }
 
         InitWindow(width, height, title.c_str());
@@ -42,7 +42,7 @@ namespace Harmony
         if (auto optVsync = properties.get<bool>({"vsync"})) {
             setVSync(*optVsync);
         } else {
-            logger->warn("Property 'vsync' not found. Using default: {}", DEFAULT_WINDOW_VSYNC);
+            m_logger->warn("Property 'vsync' not found. Using default: {}", DEFAULT_WINDOW_VSYNC);
             setVSync(DEFAULT_WINDOW_VSYNC);
         }
     }
@@ -66,8 +66,8 @@ namespace Harmony
 
     void RaylibWindow::onEvent() {// Check if the user pressed the close button or the ESC key
         if (WindowShouldClose()) {
-            logger->info("Window close event detected. Signalling engine shutdown...");
-            engine.stop();
+            m_logger->info("Window close event detected. Signalling engine shutdown...");
+            m_engine.stop();
         }
 
     }
@@ -190,6 +190,6 @@ namespace Harmony
     std::string RaylibWindow::getClipboardText() const { return ::GetClipboardText(); }
 
     // Auto-Register the Window with the Registry
-    HARMONY_REGISTER(Controller, RaylibWindow, "window_raylib", Engine&)
+    HARMONY_REGISTER(Extension, RaylibWindow, "window_raylib", Engine&)
 
 } // namespace Harmony
