@@ -7,7 +7,9 @@ namespace Harmony
 
     Logger* Logger::Context::get()
     {
-        if (m_loggers.empty()) return nullptr;
+        if (m_loggers.empty()) {
+            return nullptr;
+        }
         return m_loggers.top().first;
     }
 
@@ -19,12 +21,14 @@ namespace Harmony
     void Logger::Context::push(Logger* logger)
     {
         if (!logger) {
-            Logger::global().error("Attempted to push a null logger onto the context stack. Operation ignored.");
-            return; // FIX: Added return
+            Logger::global().error("Logger::Context::push - Attempted to push null logger onto context stack; operation ignored.");
+            return;
         }
 
+        // Reuse the top entry if the same logger is being pushed consecutively.
+        // This avoids stack bloat when the same extension makes nested calls.
         if (m_loggers.empty()) {
-            m_loggers.emplace(logger, 1); // FIX: Emplace is cleaner
+            m_loggers.emplace(logger, 1);
             return;
         }
 
@@ -38,18 +42,18 @@ namespace Harmony
     void Logger::Context::pop(Logger* logger)
     {
         if (!logger) {
-            Logger::global().error("Attempted to pop a null logger from the context stack. Operation ignored.");
+            Logger::global().error("Logger::Context::pop - Attempted to pop null logger from context stack; operation ignored.");
             return;
         }
 
         if (m_loggers.empty()) {
-            Logger::global().error("Attempted to pop from an empty context stack.");
+            Logger::global().error("Logger::Context::pop - Attempted to pop from empty context stack; possible mismatched push/pop calls.");
             return;
         }
 
-        // FIX: Ensure we are popping the correct logger
+        // Validate we are popping the correct logger to detect stack corruption.
         if (m_loggers.top().first != logger) {
-            Logger::global().error("Context stack corruption: Attempted to pop a logger that is not at the top.");
+            Logger::global().error("Logger::Context::pop - Stack corruption detected: attempted to pop logger that is not at stack top.");
             return;
         }
 
@@ -74,4 +78,4 @@ namespace Harmony
         }
     }
 
-} // Harmony
+} // namespace Harmony

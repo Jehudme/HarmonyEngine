@@ -6,73 +6,78 @@
 
 namespace Harmony
 {
-    inline std::string demangle(const char* name) {
+    // Demangles a C++ type name for human-readable logging output.
+    inline std::string demangle(const char* mangledName) {
         #ifdef __GNUC__
         int status = -1;
-        char* demangled = abi::__cxa_demangle(name, NULL, NULL, &status);
-        std::string result = (status == 0) ? demangled : name;
+        char* demangled = abi::__cxa_demangle(mangledName, nullptr, nullptr, &status);
+        std::string result = (status == 0) ? demangled : mangledName;
         free(demangled);
         return result;
         #else
-        return name;
+        return mangledName;
         #endif
     }
+
     template<typename Base, typename Derived, typename ...Args>
-    inline void Registry::save(const std::string& name)
+    inline void Registry::save(const std::string& factoryName)
     {
         static_assert(std::is_base_of_v<Base, Derived>, "Derived must inherit from Base");
 
         m_registry.write([&](RegistryMap& registry) {
-            // Because the map is flat, names must be globally unique
-            if (registry.contains(name)) {
-                std::string message = std::format("Registry error: Factory name '{}' is already in use.", name);
-                m_logger.error("{}", message);
-                throw std::runtime_error(message);
+            // Factory names must be globally unique; reject duplicates.
+            if (registry.contains(factoryName)) {
+                const std::string errorMessage = std::format(
+                    "Registry::save - Factory name '{}' is already registered; duplicate registration rejected.", factoryName);
+                m_logger.error("{}", errorMessage);
+                throw std::runtime_error(errorMessage);
             }
 
+            // Type erasure: store a typed factory lambda inside std::any.
+            // The factory creates Derived instances and returns them as unique_ptr<Base>.
             using FactoryType = std::function<std::unique_ptr<Base>(Args...)>;
-            registry[name] = FactoryType([](Args... args) -> std::unique_ptr<Base> {
+            registry[factoryName] = FactoryType([](Args... args) -> std::unique_ptr<Base> {
                 return std::make_unique<Derived>(std::forward<Args>(args)...);
             });
 
-            m_logger.info("Saved factory '{}' for type '{}'.", name, demangle(typeid(Base).name()));
+            m_logger.info("Registry: Saved factory '{}' for base type '{}'.", factoryName, demangle(typeid(Base).name()));
         });
     }
 
-    // No longer a template function!
-    inline void Registry::free(const std::string& name)
+    inline void Registry::free(const std::string& factoryName)
     {
         m_registry.write([&](RegistryMap& registry) {
-            if (registry.erase(name) > 0) {
-                m_logger.info("Freed factory '{}'.", name);
+            if (registry.erase(factoryName) > 0) {
+                m_logger.info("Registry: Freed factory '{}'.", factoryName);
             } else {
-                m_logger.warn("Free failed: Factory '{}' not found.", name);
+                m_logger.warn("Registry::free - Factory '{}' not found; nothing to remove.", factoryName);
             }
         });
     }
 
     template<typename Type, typename ...Args>
-    inline std::unique_ptr<Type> Registry::create(const std::string& name, Args&& ...args)
+    inline std::unique_ptr<Type> Registry::create(const std::string& factoryName, Args&& ...args)
     {
         return m_registry.read([&](const RegistryMap& registry) -> std::unique_ptr<Type> {
-            auto factoryEntry = registry.find(name);
-            if (factoryEntry == registry.end()) {
-                m_logger.error("Create failed: Factory '{}' not found.", name);
+            auto factoryIterator = registry.find(factoryName);
+            if (factoryIterator == registry.end()) {
+                m_logger.error("Registry::create - Factory '{}' not found in registry.", factoryName);
                 return nullptr;
             }
 
-            // Type erasure: the factory was stored as std::any holding a typed std::function.
-            // any_cast recovers the concrete FactoryType; a mismatch between the stored
-            // Base/Args and the requested Type/Args throws std::bad_any_cast safely here.
+            // Type erasure recovery: any_cast attempts to extract the typed factory.
+            // If the stored Base/Args signature differs from the requested Type/Args,
+            // std::bad_any_cast is thrown, which we catch to handle gracefully.
             using FactoryType = std::function<std::unique_ptr<Type>(Args...)>;
 
             try {
-                const auto& factory = std::any_cast<const FactoryType&>(factoryEntry->second);
-                m_logger.trace("Creating instance '{}' for type '{}'.", name, typeid(Type).name());
+                const auto& factory = std::any_cast<const FactoryType&>(factoryIterator->second);
+                m_logger.trace("Registry: Creating instance '{}' of type '{}'.", factoryName, demangle(typeid(Type).name()));
                 return factory(std::forward<Args>(args)...);
             }
             catch (const std::bad_any_cast&) {
-                m_logger.error("Create failed: Type or argument mismatch for factory '{}'.", name);
+                m_logger.error("Registry::create - Type or argument signature mismatch for factory '{}'. "
+                              "Ensure the requested type matches the registered base type and arguments.", factoryName);
                 return nullptr;
             }
         });
