@@ -11,7 +11,7 @@ namespace Harmony
 {
     Engine::Engine(std::unique_ptr<IKernel> kernel) :
         Harmony::Service("engine", "engine", *this),
-        kernel(std::move(kernel))
+        m_kernel(std::move(kernel))
     {
     }
 
@@ -21,42 +21,60 @@ namespace Harmony
 
     void Engine::onInitialize(const Properties& properties)
     {
-        kernel->initialize(*this, properties);
+        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        m_logger->info("Engine '{}' initializing kernel with provided properties...", m_name);
+        m_kernel->initialize(*this, properties);
+        m_logger->info("Engine '{}' kernel initialization complete.", m_name);
     }
 
     void Engine::onUpdate()
     {
-        kernel->update();
+        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        m_kernel->update();
     }
 
     void Engine::onRender()
     {
-        kernel->render();
+        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        m_kernel->render();
     }
 
     void Engine::onEvent()
     {
-        kernel->event();
+        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        m_kernel->event();
     }
 
     void Engine::onStart()
     {
         HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
-        m_logger->info("Service '{}' of type '{}' has started. Game loop is now running.", m_name, m_type);
+        m_logger->info("Engine '{}' of type '{}' has started. Main game loop is now active.", m_name, m_type);
     }
 
     void Engine::onShutdown()
     {
         HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
-        m_logger->info("Service '{}' of type '{}' received shutdown signal. Terminating game loop...", m_name, m_type);
+        m_logger->info("Engine '{}' of type '{}' received shutdown signal. Terminating main game loop...", m_name, m_type);
     }
 
     void Engine::onFinalize()
     {
-        kernel->finalize();
+        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        m_logger->info("Engine '{}' finalizing kernel...", m_name);
+        m_kernel->finalize();
+        m_logger->info("Engine '{}' kernel finalization complete.", m_name);
     }
 
-    void Engine::onPause()  { HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD; m_logger->info("Service '{}' of type '{}' has been paused.", m_name, m_type); }
-    void Engine::onResume() { HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD; m_logger->info("Service '{}' of type '{}' has been resumed.", m_name, m_type); }
+    void Engine::onPause()
+    {
+        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        m_logger->info("Engine '{}' of type '{}' has been paused.", m_name, m_type);
+    }
+
+    void Engine::onResume()
+    {
+        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        m_logger->info("Engine '{}' of type '{}' has been resumed.", m_name, m_type);
+    }
 
 } // namespace Harmony

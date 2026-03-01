@@ -6,8 +6,9 @@
 namespace Harmony {
     class Engine;
 
-    // Base class for all engine modules. An Extension encapsulates a named,
+    // Extension is the base class for all engine modules. It encapsulates a named,
     // stateful lifecycle that the Kernel drives through initialize/update/render/event/finalize.
+    // Extensions are designed to be thread-safe through internal mutex protection.
     class Extension {
     public:
         enum class State { Initialized, Running, Paused, Shutdown };
@@ -28,8 +29,8 @@ namespace Harmony {
         virtual void render();
         virtual void event();
 
-        const std::string& getName() const;
-        const std::string& getType() const;
+        [[nodiscard]] const std::string& getName() const;
+        [[nodiscard]] const std::string& getType() const;
 
     protected:
         virtual void onInitialize(const Properties& properties) = 0;
@@ -39,14 +40,21 @@ namespace Harmony {
         virtual void onRender() = 0;
         virtual void onEvent() = 0;
 
+        // Logger instance for this extension; pushed onto thread-local context during callbacks.
         std::unique_ptr<Logger> m_logger;
+
+        // Thread-safe state wrapper using reader-writer lock semantics.
         Guarded<State> m_state;
 
+        // Reference to the owning Engine for cross-extension communication.
         Engine& m_engine;
+
+        // Immutable identifiers for this extension.
         const std::string m_name;
         const std::string m_type;
 
     private:
-        std::mutex m_mutex;
+        // Protects lifecycle transitions to ensure thread-safe state changes.
+        std::mutex m_lifecycleMutex;
     };
 }

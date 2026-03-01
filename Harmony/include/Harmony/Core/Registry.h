@@ -13,6 +13,9 @@
 
 namespace Harmony
 {
+    // Registry provides a thread-safe type-erased factory system for dynamic object creation.
+    // Types are registered with a string name and created via type-erased factory functions.
+    // This enables runtime-configurable extension instantiation from JSON configuration.
     class Registry
     {
     public:
@@ -23,15 +26,21 @@ namespace Harmony
         Registry(Registry&&) = delete;
         Registry& operator=(Registry&&) = delete;
 
+        // Registers a factory function that creates Derived instances as Base pointers.
+        // The factory accepts Args... and returns std::unique_ptr<Base>.
         template<typename Base, typename Derived, typename ...Args>
-        static void save(const std::string& name);
+        static void save(const std::string& factoryName);
 
-        static void free(const std::string& name);
+        // Removes a factory from the registry by name.
+        static void free(const std::string& factoryName);
 
+        // Creates an instance using the registered factory, returning nullptr on failure.
+        // Type mismatch between stored and requested types is handled gracefully.
         template<typename Type, typename ...Args>
-        static std::unique_ptr<Type> create(const std::string& name, Args&& ...args);
+        static std::unique_ptr<Type> create(const std::string& factoryName, Args&& ...args);
 
     private:
+        // Type-erased map: factory name -> std::any holding std::function<std::unique_ptr<T>(Args...)>
         using RegistryMap = std::unordered_map<std::string, std::any>;
 
         static inline Guarded<RegistryMap> m_registry = Guarded<RegistryMap>();
@@ -41,7 +50,7 @@ namespace Harmony
 
 // --- Macros ---
 
-// Automatic Registration (Runs before main)
+// Automatic Registration (Runs before main via static initialization)
 #define HARMONY_REGISTER(Base, Derived, Name, ...)                         \
     namespace {                                                            \
         struct HarmonyRegistrar_##Derived##_##__LINE__ {                   \
@@ -59,7 +68,7 @@ namespace Harmony
 #define HARMONY_REGISTER_MANUAL(Base, Derived, Name, ...) \
     ::Harmony::Registry::save<Base, Derived, ##__VA_ARGS__>(Name)
 
-// Manual Unregistration (Now only requires the string name!)
+// Manual Unregistration (Requires only the string name)
 #define HARMONY_UNREGISTER_MANUAL(Name) \
     ::Harmony::Registry::free(Name)
 

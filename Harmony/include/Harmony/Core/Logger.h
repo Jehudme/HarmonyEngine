@@ -7,6 +7,10 @@
 #include <Harmony/Utilities/Properties.h>
 
 namespace Harmony {
+
+    // Logger provides a flexible, configurable logging system backed by spdlog.
+    // Supports multiple sinks (console, file, rotating file, daily file) and async mode.
+    // Thread-local context stacks enable per-extension logging scopes.
     class Logger {
     public:
         enum class Level { TRACE, DEBUG, INFO, WARNING, ERROR, CRITICAL };
@@ -34,7 +38,10 @@ namespace Harmony {
         template<typename... Args>
         void critical(std::format_string<Args...> format, Args&&... args);
 
+        // Returns the global singleton logger instance.
         static Logger& global();
+
+        // Returns the current thread's context logger, falling back to global if none is set.
         static Logger& context();
 
         class Context;

@@ -17,63 +17,59 @@ namespace Harmony {
         std::shared_ptr<spdlog::logger> spd_logger;
     };
 
-
     Logger::Logger(const std::string& name, const Properties& properties) : pimpl(std::make_unique<Impl>()) {
 
         // 1. Extract Core Settings
-        std::string lvl_str = properties.get<std::string>({"level"}).value_or(DEFAULT_LEVEL_STR);
-        std::string pattern = properties.get<std::string>({"pattern"}).value_or(DEFAULT_PATTERN);
-        std::string fls_str = properties.get<std::string>({"flush_on"}).value_or(DEFAULT_FLUSH_ON);
+        std::string levelString = properties.get<std::string>({"level"}).value_or(DEFAULT_LEVEL_STR);
+        std::string logPattern = properties.get<std::string>({"pattern"}).value_or(DEFAULT_PATTERN);
+        std::string flushOnLevel = properties.get<std::string>({"flush_on"}).value_or(DEFAULT_FLUSH_ON);
 
         // 2. Extract Async Settings
-        bool async_enabled    = properties.get<bool>({"async", "enabled"}).value_or(DEFAULT_ASYNC_ENABLED);
-        int32_t async_q_size  = properties.get<int32_t>({"async", "queue_size"}).value_or(DEFAULT_ASYNC_QUEUE_SIZE);
-        int32_t async_threads = properties.get<int32_t>({"async", "thread_count"}).value_or(DEFAULT_ASYNC_THREAD_COUNT);
+        bool asyncEnabled = properties.get<bool>({"async", "enabled"}).value_or(DEFAULT_ASYNC_ENABLED);
+        int32_t asyncQueueSize = properties.get<int32_t>({"async", "queue_size"}).value_or(DEFAULT_ASYNC_QUEUE_SIZE);
+        int32_t asyncThreadCount = properties.get<int32_t>({"async", "thread_count"}).value_or(DEFAULT_ASYNC_THREAD_COUNT);
 
         // 3. Build Sinks
         std::vector<spdlog::sink_ptr> sinks;
 
         // Console Sink
         if (properties.get<bool>({"sinks", "console", "enabled"}).value_or(DEFAULT_SINK_CONSOLE_ENABLED)) {
-            bool use_color = properties.get<bool>({"sinks", "console", "color"}).value_or(DEFAULT_SINK_CONSOLE_COLOR);
-            if (use_color) {
-                sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
-            } else {
-                // Assuming you want standard stdout if color is false (spdlog doesn't have a purely colorless stdout by default without overriding pattern, but this is a safe fallback)
-                auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
-                console_sink->set_color_mode(spdlog::color_mode::never);
-                sinks.push_back(console_sink);
+            bool useColor = properties.get<bool>({"sinks", "console", "color"}).value_or(DEFAULT_SINK_CONSOLE_COLOR);
+            auto consoleSink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+            if (!useColor) {
+                consoleSink->set_color_mode(spdlog::color_mode::never);
             }
+            sinks.push_back(consoleSink);
         }
 
         // Basic File Sink
         if (properties.get<bool>({"sinks", "basic_file", "enabled"}).value_or(DEFAULT_SINK_BASIC_ENABLED)) {
-            std::string path = properties.get<std::string>({"Lsinks", "basic_file", "path"}).value_or(DEFAULT_SINK_BASIC_PATH);
-            bool truncate    = properties.get<bool>({"sinks", "basic_file", "truncate"}).value_or(DEFAULT_SINK_BASIC_TRUNCATE);
-            sinks.push_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>(path, truncate));
+            std::string filePath = properties.get<std::string>({"sinks", "basic_file", "path"}).value_or(DEFAULT_SINK_BASIC_PATH);
+            bool truncateOnOpen = properties.get<bool>({"sinks", "basic_file", "truncate"}).value_or(DEFAULT_SINK_BASIC_TRUNCATE);
+            sinks.push_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>(filePath, truncateOnOpen));
         }
 
         // Rotating File Sink
         if (properties.get<bool>({"sinks", "rotating_file", "enabled"}).value_or(DEFAULT_SINK_ROTATING_ENABLED)) {
-            std::string path = properties.get<std::string>({"sinks", "rotating_file", "path"}).value_or(DEFAULT_SINK_ROTATING_PATH);
-            int32_t max_mb   = properties.get<int32_t>({"sinks", "rotating_file", "max_size"}).value_or(DEFAULT_SINK_ROTATING_MAX_MB);
-            int32_t max_files= properties.get<int32_t>({"sinks", "rotating_file", "max_files"}).value_or(DEFAULT_SINK_ROTATING_MAX_FILES);
+            std::string filePath = properties.get<std::string>({"sinks", "rotating_file", "path"}).value_or(DEFAULT_SINK_ROTATING_PATH);
+            int32_t maxSizeMb = properties.get<int32_t>({"sinks", "rotating_file", "max_size"}).value_or(DEFAULT_SINK_ROTATING_MAX_MB);
+            int32_t maxFileCount = properties.get<int32_t>({"sinks", "rotating_file", "max_files"}).value_or(DEFAULT_SINK_ROTATING_MAX_FILES);
 
-            size_t max_bytes = static_cast<size_t>(max_mb) * 1024 * 1024;
-            sinks.push_back(std::make_shared<spdlog::sinks::rotating_file_sink_mt>(path, max_bytes, max_files));
+            size_t maxSizeBytes = static_cast<size_t>(maxSizeMb) * 1024 * 1024;
+            sinks.push_back(std::make_shared<spdlog::sinks::rotating_file_sink_mt>(filePath, maxSizeBytes, maxFileCount));
         }
 
         // Daily File Sink
         if (properties.get<bool>({"sinks", "daily_file", "enabled"}).value_or(DEFAULT_SINK_DAILY_ENABLED)) {
-            std::string path = properties.get<std::string>({"sinks", "daily_file", "path"}).value_or(DEFAULT_SINK_DAILY_PATH);
-            int32_t hour     = properties.get<int32_t>({"sinks", "daily_file", "hour"}).value_or(DEFAULT_SINK_DAILY_HOUR);
-            int32_t minute   = properties.get<int32_t>({"sinks", "daily_file", "minute"}).value_or(DEFAULT_SINK_DAILY_MINUTE);
-            sinks.push_back(std::make_shared<spdlog::sinks::daily_file_sink_mt>(path, hour, minute));
+            std::string filePath = properties.get<std::string>({"sinks", "daily_file", "path"}).value_or(DEFAULT_SINK_DAILY_PATH);
+            int32_t rotationHour = properties.get<int32_t>({"sinks", "daily_file", "hour"}).value_or(DEFAULT_SINK_DAILY_HOUR);
+            int32_t rotationMinute = properties.get<int32_t>({"sinks", "daily_file", "minute"}).value_or(DEFAULT_SINK_DAILY_MINUTE);
+            sinks.push_back(std::make_shared<spdlog::sinks::daily_file_sink_mt>(filePath, rotationHour, rotationMinute));
         }
 
         // 4. Construct the Logger (Async vs Sync)
-        if (async_enabled) {
-            spdlog::init_thread_pool(async_q_size, async_threads);
+        if (asyncEnabled) {
+            spdlog::init_thread_pool(asyncQueueSize, asyncThreadCount);
             pimpl->spd_logger = std::make_shared<spdlog::async_logger>(
                 name, sinks.begin(), sinks.end(), spdlog::thread_pool(), spdlog::async_overflow_policy::block
             );
@@ -82,12 +78,14 @@ namespace Harmony {
         }
 
         // 5. Apply Core Settings
-        pimpl->spd_logger->set_pattern(pattern);
-        pimpl->spd_logger->set_level(spdlog::level::from_str(lvl_str));
-        pimpl->spd_logger->flush_on(spdlog::level::from_str(fls_str));
+        pimpl->spd_logger->set_pattern(logPattern);
+        pimpl->spd_logger->set_level(spdlog::level::from_str(levelString));
+        pimpl->spd_logger->flush_on(spdlog::level::from_str(flushOnLevel));
 
-        // 6. Register globally in spdlog registry
-        if (name != DEFAULT_LOGGER_NAME) spdlog::register_logger(pimpl->spd_logger);
+        // 6. Register globally in spdlog registry (except for default logger)
+        if (name != DEFAULT_LOGGER_NAME) {
+            spdlog::register_logger(pimpl->spd_logger);
+        }
     }
 
     Logger::Logger(const Properties& properties) : Logger(DEFAULT_LOGGER_NAME, properties) {}
@@ -96,47 +94,48 @@ namespace Harmony {
 
     Logger& Logger::global()
     {
-        static Logger logger("Global");
-        return logger;
+        static Logger globalLogger("Global");
+        return globalLogger;
     }
 
     Logger::Context& Logger::contextInstance()
     {
-        // Each thread owns its own context stack so that concurrent extensions
+        // Each thread owns its own context stack so concurrent extensions
         // do not interfere with each other's logger scope.
-        static thread_local Context ctx;
-        return ctx;
+        static thread_local Context threadLocalContext;
+        return threadLocalContext;
     }
 
     Logger& Logger::context()
     {
-        Logger* logger = contextInstance().get();
-        if (!logger) {
-            // No extension has pushed a logger yet; warn once and fall back to the
-            // global logger so callers always receive a valid reference.
-            Logger::global().warn("No context logger found, falling back to global.");
+        Logger* contextLogger = contextInstance().get();
+        if (!contextLogger) {
+            // No extension has pushed a logger yet; warn once and fall back to
+            // the global logger so callers always receive a valid reference.
+            Logger::global().warn("Logger::context - No context logger found on current thread; falling back to global logger.");
             return Logger::global();
         }
-        return *logger;
+        return *contextLogger;
     }
-
 
     void Logger::dispatch_log(const Level level, const std::string& message) const
     {
-        if (!pimpl || !pimpl->spd_logger) return;
-
-        spdlog::level::level_enum spd_level = spdlog::level::info;
-
-        switch (level) {
-            case Level::TRACE:    spd_level = spdlog::level::trace; break;
-            case Level::DEBUG:    spd_level = spdlog::level::debug; break;
-            case Level::INFO:     spd_level = spdlog::level::info; break;
-            case Level::WARNING:  spd_level = spdlog::level::warn; break;
-            case Level::ERROR:    spd_level = spdlog::level::err; break;
-            case Level::CRITICAL: spd_level = spdlog::level::critical; break;
+        if (!pimpl || !pimpl->spd_logger) {
+            return;
         }
 
-        pimpl->spd_logger->log(spd_level, message);
+        spdlog::level::level_enum spdLevel = spdlog::level::info;
+
+        switch (level) {
+            case Level::TRACE:    spdLevel = spdlog::level::trace; break;
+            case Level::DEBUG:    spdLevel = spdlog::level::debug; break;
+            case Level::INFO:     spdLevel = spdlog::level::info; break;
+            case Level::WARNING:  spdLevel = spdlog::level::warn; break;
+            case Level::ERROR:    spdLevel = spdlog::level::err; break;
+            case Level::CRITICAL: spdLevel = spdlog::level::critical; break;
+        }
+
+        pimpl->spd_logger->log(spdLevel, message);
     }
 
 }
