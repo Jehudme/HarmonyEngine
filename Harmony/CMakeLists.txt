@@ -16,16 +16,21 @@ add_library(Harmony STATIC ${ENGINE_SOURCES} ${ENGINE_HEADERS}
         include/Harmony/Core/Service.h
         source/Core/Controller.cpp
         source/Core/Service.cpp
-        include/Harmony/Interfaces/IEngine.h
         include/Harmony/Interfaces/IWindow.h
         include/Harmony/Utilities/Uncopyable.h
         include/Harmony/Core/Registry.h
         include/Harmony/Core/Registry.inl
+        source/Core/Engine.cpp
+        include/Harmony/Core/Engine.h
+        include/Harmony/Interfaces/IKernel.h
+        source/Modules/Kernal.cpp
+        source/Modules/Kernal.h
 )
 
 # Professional Scoping
 target_link_libraries(Harmony
         PRIVATE
+        flecs::flecs       # Hidden ECS implementation
         raylib             # Hidden implementation
         spdlog::spdlog     # Hidden logging
         glaze::glaze       # Hidden serialization

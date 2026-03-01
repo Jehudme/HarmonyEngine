@@ -30,5 +30,6 @@ namespace Harmony {
     template<typename... Args>
     inline void Logger::critical(std::format_string<Args...> format, Args&&... args) {
         dispatch_log(Level::CRITICAL, std::format(format, std::forward<Args>(args)...));
+        throw std::runtime_error(std::format(format, std::forward<Args>(args)...));
     }
 }

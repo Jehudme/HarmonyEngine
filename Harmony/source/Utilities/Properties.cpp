@@ -7,6 +7,8 @@
 #include <stdexcept>
 #include <fstream>
 
+#include "Harmony/Utilities/Logger.h"
+
 namespace Harmony {
 
     struct Properties::Impl {
@@ -143,4 +145,32 @@ namespace Harmony {
         file_stream << buffer;
     }
 
+    void Properties::foreach(const Path& key_path, std::function<void(const std::string& key, const Properties& properties)> function) const {
+        const glz::json_t* current_node = &pimpl->data;
+
+        for (const auto& step : key_path) {
+            if (!current_node->is_object()) {
+                throw std::runtime_error("Harmony::Properties::foreach - Invalid Path");
+            }
+
+            auto& object_map = current_node->get_object();
+            auto it = object_map.find(step);
+
+            if (it == object_map.end()) {
+                throw std::runtime_error("Harmony::Properties::foreach - Key not found");
+            }
+
+            current_node = &it->second;
+        }
+
+        if (!current_node->is_object()) {
+            throw std::runtime_error("Harmony::Properties::foreach - Target is not an object");
+        }
+
+        for (const auto& [key, value] : current_node->get_object()) {
+            Properties sub_properties;
+            sub_properties.pimpl->data = value;
+            function(key, sub_properties);
+        }
+    }
 }

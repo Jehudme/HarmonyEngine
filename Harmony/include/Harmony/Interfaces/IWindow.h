@@ -26,11 +26,11 @@ namespace Harmony
         BorderlessWindowed
     };
 
-    class IWindow : public Controller, private Uncopyable
+    class IWindow : public Controller
     {
     public:
         explicit IWindow(Engine& engine) : Controller(engine) {}
-        virtual ~IWindow() = default;
+        ~IWindow() override = default;
 
         // ==========================================
         // Lifecycle & Core Loop

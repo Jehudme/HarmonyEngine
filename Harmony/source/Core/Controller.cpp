@@ -1,12 +1,11 @@
 #include "Harmony/Core/Controller.h"
 
 namespace Harmony {
-    Controller::Controller(IEngine& engine) : state(State::Shutdown), engine(engine) {
-        logger = std::make_unique<Logger>();
-    }
+    Controller::Controller(Engine& engine) : engine(engine) {}
+    Controller::~Controller() = default;
 
     void Controller::Initialize(const Properties& properties) {
-        std::lock_guard<std::mutex> lock(mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
 
         std::optional<Properties> loggerProperties = properties.getSubProperties({"logger"});
         if (loggerProperties.has_value()) {
@@ -20,7 +19,7 @@ namespace Harmony {
     }
 
     void Controller::Finalize() {
-        std::lock_guard<std::mutex> lock(mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
 
         logger->info("Finalizing... ");
         onFinalize();
@@ -29,7 +28,7 @@ namespace Harmony {
     }
 
     void Controller::update() {
-        std::lock_guard<std::mutex> lock(mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
 
         logger->trace("Updating... ");
         onUpdate();
@@ -38,7 +37,7 @@ namespace Harmony {
     }
 
     void Controller::render() {
-        std::lock_guard<std::mutex> lock(mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
 
         logger->trace("Rendering... ");
         onRender();
@@ -47,7 +46,7 @@ namespace Harmony {
     }
 
     void Controller::event() {
-        std::lock_guard<std::mutex> lock(mutex);
+        std::lock_guard<std::mutex> lock(m_mutex);
 
         logger->trace("Processing events... ");
         onEvent();

@@ -38,7 +38,14 @@ FetchContent_Declare(glaze
         GIT_SHALLOW    TRUE
 )
 
-FetchContent_MakeAvailable(raylib glm spdlog glaze)
+# --- Flecs (v4.1.4 - Latest Stable) ---
+FetchContent_Declare(flecs
+        GIT_REPOSITORY https://github.com/SanderMertens/flecs.git
+        GIT_TAG        v4.1.4
+)
+
+# Rend toutes les dépendances disponibles pour le projet
+FetchContent_MakeAvailable(raylib glm spdlog glaze flecs)
 
 add_subdirectory(Harmony)
 add_subdirectory(Sandbox)

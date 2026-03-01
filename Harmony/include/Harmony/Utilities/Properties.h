@@ -4,6 +4,7 @@
 #include <memory>
 #include <typeindex>
 #include <filesystem>
+#include <functional>
 #include <optional>
 
 namespace Harmony {
@@ -32,6 +33,8 @@ namespace Harmony {
 
         void load(const std::filesystem::path& filepath);
         void save(const std::filesystem::path& filepath) const;
+
+        void foreach(const Path& key_path, std::function<void(const std::string& key, const Properties& properties)> function) const;
 
     private:
         struct Impl;

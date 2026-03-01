@@ -4,12 +4,12 @@
 #include <Harmony/Core/Controller.h>
 
 namespace Harmony {
-    class IEngine;
+    class Engine;
 
     class Service : public Controller
     {
     public:
-        explicit Service(IEngine& engine);
+        explicit Service(Engine& engine);
         ~Service() override = default;
 
         void start();
@@ -30,7 +30,5 @@ namespace Harmony {
         std::thread m_thread;
         std::condition_variable m_cv;
         bool m_managedThread = false;
-
     };
-
 }
