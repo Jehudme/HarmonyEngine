@@ -13,16 +13,6 @@ namespace Harmony {
 
     void Extension::initialize(const Properties& properties) {
         std::lock_guard<std::mutex> lock(m_lifecycleMutex);
-
-        // Allow the logger to be reconfigured from a "logger" sub-object in properties.
-        // This enables per-extension logging configuration via JSON.
-        constexpr std::array<std::string_view, 1> loggerPath = {"logger"};
-        if (auto loggerProperties = properties.getSubProperties(std::span<const std::string_view>(loggerPath))) {
-            m_logger = std::make_unique<Logger>(*loggerProperties);
-        }
-
-        // Push this extension's logger onto the thread-local context stack so that
-        // any nested calls to Logger::context() resolve to this extension's logger.
         HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
 
         m_logger->trace("Extension '{}' of type '{}' beginning initialization...", m_name, m_type);

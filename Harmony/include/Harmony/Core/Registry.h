@@ -44,7 +44,7 @@ namespace Harmony
         using RegistryMap = std::unordered_map<std::string, std::any>;
 
         static inline Guarded<RegistryMap> m_registry = Guarded<RegistryMap>();
-        static inline Logger& m_logger = Logger::global();
+        static inline std::unique_ptr<Logger> m_logger = std::make_unique<Logger>("Registry");
     };
 }
 
