@@ -22,7 +22,7 @@ namespace Harmony
     template<typename Base, typename Derived, typename ...Args>
     inline void Registry::save(const std::string& factoryName)
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
 
         static_assert(std::is_base_of_v<Base, Derived>, "Derived must inherit from Base");
 
@@ -48,7 +48,7 @@ namespace Harmony
 
     inline void Registry::free(const std::string& factoryName)
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
 
         m_registry.write([&](RegistryMap& registry) {
             if (registry.erase(factoryName) > 0) {

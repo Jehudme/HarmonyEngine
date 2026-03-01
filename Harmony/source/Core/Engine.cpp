@@ -21,7 +21,7 @@ namespace Harmony
 
     void Engine::onInitialize(const Properties& properties)
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->info("Engine '{}' initializing kernel with provided properties...", m_name);
         m_kernel->initialize(*this, properties);
         m_logger->info("Engine '{}' kernel initialization complete.", m_name);
@@ -29,37 +29,37 @@ namespace Harmony
 
     void Engine::onUpdate(float deltaTime)
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_kernel->update(deltaTime);
     }
 
     void Engine::onRender()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_kernel->render();
     }
 
     void Engine::onEvent()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_kernel->event();
     }
 
     void Engine::onStart()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->info("Engine '{}' of type '{}' has started. Main game loop is now active.", m_name, m_type);
     }
 
     void Engine::onShutdown()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->info("Engine '{}' of type '{}' received shutdown signal. Terminating main game loop...", m_name, m_type);
     }
 
     void Engine::onFinalize()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->info("Engine '{}' finalizing kernel...", m_name);
         m_kernel->finalize();
         m_logger->info("Engine '{}' kernel finalization complete.", m_name);
@@ -67,13 +67,13 @@ namespace Harmony
 
     void Engine::onPause()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->info("Engine '{}' of type '{}' has been paused.", m_name, m_type);
     }
 
     void Engine::onResume()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->info("Engine '{}' of type '{}' has been resumed.", m_name, m_type);
     }
 

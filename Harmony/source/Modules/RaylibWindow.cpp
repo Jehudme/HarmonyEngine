@@ -19,7 +19,7 @@ namespace Harmony
 
     void RaylibWindow::onInitialize(const Properties& properties)
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
 
         // Helper lambda to extract a property with fallback logging.
         // Uses std::array for zero-allocation key path lookups.
@@ -51,7 +51,7 @@ namespace Harmony
 
     void RaylibWindow::onFinalize()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->info("RaylibWindow '{}': Closing window...", m_name);
         CloseWindow();
         m_logger->info("RaylibWindow '{}': Window closed.", m_name);
@@ -59,7 +59,7 @@ namespace Harmony
 
     void RaylibWindow::onUpdate(float deltaTime)
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         // Core engine updates are managed by Kernel; no window-specific update logic needed.
         // deltaTime parameter available for future use by derived classes.
         (void)deltaTime;
@@ -67,7 +67,7 @@ namespace Harmony
 
     void RaylibWindow::onRender()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         // Raylib requires drawing to be wrapped in Begin/EndDrawing calls for buffer swapping.
         BeginDrawing();
         ClearBackground(RAYWHITE);
@@ -79,7 +79,7 @@ namespace Harmony
 
     void RaylibWindow::onEvent()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         // Check if the user pressed the close button or the ESC key.
         if (WindowShouldClose()) {
             m_logger->info("RaylibWindow '{}' of type '{}': Window close event detected; signaling engine shutdown.", m_name, m_type);
@@ -93,19 +93,19 @@ namespace Harmony
 
     void RaylibWindow::processEvents()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         // Raylib handles event polling internally during WindowShouldClose().
     }
 
     void RaylibWindow::swapBuffers()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         // Raylib swaps buffers internally during EndDrawing().
     }
 
     void RaylibWindow::close()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': close() called.", m_name);
         // Note: This queries close state rather than forcing close.
         WindowShouldClose();
@@ -132,35 +132,35 @@ namespace Harmony
 
     void RaylibWindow::setWidth(uint32_t width)
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': Setting width to {}.", m_name, width);
         SetWindowSize(static_cast<int>(width), GetScreenHeight());
     }
 
     void RaylibWindow::setHeight(uint32_t height)
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': Setting height to {}.", m_name, height);
         SetWindowSize(GetScreenWidth(), static_cast<int>(height));
     }
 
     void RaylibWindow::setSize(uint32_t width, uint32_t height)
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': Setting size to {}x{}.", m_name, width, height);
         SetWindowSize(static_cast<int>(width), static_cast<int>(height));
     }
 
     void RaylibWindow::setMinSize(uint32_t width, uint32_t height)
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': Setting minimum size to {}x{}.", m_name, width, height);
         SetWindowMinSize(static_cast<int>(width), static_cast<int>(height));
     }
 
     void RaylibWindow::setMaxSize(uint32_t width, uint32_t height)
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': Setting maximum size to {}x{}.", m_name, width, height);
         SetWindowMaxSize(static_cast<int>(width), static_cast<int>(height));
     }
@@ -186,14 +186,14 @@ namespace Harmony
 
     void RaylibWindow::setPosition(int32_t x, int32_t y)
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': Setting position to ({}, {}).", m_name, x, y);
         SetWindowPosition(x, y);
     }
 
     void RaylibWindow::centerWindow()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         const int currentMonitor = GetCurrentMonitor();
         const int monitorWidth = GetMonitorWidth(currentMonitor);
         const int monitorHeight = GetMonitorHeight(currentMonitor);
@@ -209,7 +209,7 @@ namespace Harmony
 
     void RaylibWindow::setWindowMode(WindowMode mode)
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': Setting window mode.", m_name);
 
         if (mode == WindowMode::Fullscreen) {
@@ -249,7 +249,7 @@ namespace Harmony
 
     void RaylibWindow::setResizable(bool enabled)
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': Setting resizable to {}.", m_name, enabled);
         if (enabled) {
             SetWindowState(FLAG_WINDOW_RESIZABLE);
@@ -265,7 +265,7 @@ namespace Harmony
 
     void RaylibWindow::minimize()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': Minimizing window.", m_name);
         MinimizeWindow();
     }
@@ -277,14 +277,14 @@ namespace Harmony
 
     void RaylibWindow::maximize()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': Maximizing window.", m_name);
         MaximizeWindow();
     }
 
     void RaylibWindow::restore()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': Restoring window.", m_name);
         RestoreWindow();
     }
@@ -296,14 +296,14 @@ namespace Harmony
 
     void RaylibWindow::show()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': Showing window.", m_name);
         ClearWindowState(FLAG_WINDOW_HIDDEN);
     }
 
     void RaylibWindow::hide()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': Hiding window.", m_name);
         SetWindowState(FLAG_WINDOW_HIDDEN);
     }
@@ -315,14 +315,14 @@ namespace Harmony
 
     void RaylibWindow::focus()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': Requesting focus.", m_name);
         SetWindowFocused();
     }
 
     void RaylibWindow::requestAttention()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         // Raylib does not natively support taskbar attention requests.
         m_logger->trace("RaylibWindow '{}': requestAttention() called but not supported by Raylib.", m_name);
     }
@@ -335,7 +335,7 @@ namespace Harmony
 
     void RaylibWindow::setOpacity(float opacity)
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': Setting opacity to {}.", m_name, opacity);
         SetWindowOpacity(opacity);
     }
@@ -352,14 +352,14 @@ namespace Harmony
 
     void RaylibWindow::setTitle(const std::string& title)
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': Setting title to '{}'.", m_name, title);
         SetWindowTitle(title.c_str());
     }
 
     void RaylibWindow::setIcon(const std::filesystem::path& filepath)
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': Setting icon from '{}'.", m_name, filepath.string());
         Image iconImage = LoadImage(filepath.string().c_str());
         SetWindowIcon(iconImage);
@@ -377,7 +377,7 @@ namespace Harmony
 
     void RaylibWindow::setVSync(bool enabled)
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': Setting VSync to {}.", m_name, enabled);
         if (enabled) {
             SetWindowState(FLAG_VSYNC_HINT);
@@ -405,7 +405,7 @@ namespace Harmony
 
     void RaylibWindow::makeContextCurrent()
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         // Raylib manages context internally; no action required.
     }
 
@@ -415,7 +415,7 @@ namespace Harmony
 
     void RaylibWindow::setCursorMode(CursorMode mode)
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': Setting cursor mode.", m_name);
 
         switch (mode) {
@@ -444,7 +444,7 @@ namespace Harmony
 
     void RaylibWindow::setClipboardText(const std::string& text)
     {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': Setting clipboard text.", m_name);
         SetClipboardText(text.c_str());
     }

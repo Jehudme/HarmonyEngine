@@ -17,7 +17,7 @@ namespace Harmony {
     // ========================================================================
 
     void Service::start() {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
 
         // Validate transition: Only an 'Initialized' service can move to 'Running'.
         const State currentState = m_state.load(std::memory_order_acquire);
@@ -54,7 +54,7 @@ namespace Harmony {
     }
 
     void Service::stop() {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
 
         const State currentState = m_state.load(std::memory_order_acquire);
         if (currentState == State::Shutdown) {
@@ -84,7 +84,7 @@ namespace Harmony {
     }
 
     void Service::pause() {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
 
         if (!m_isThreadManaged) {
             m_logger->warn("Service '{}' has no managed thread; pause() has no effect.", m_name);
@@ -106,7 +106,7 @@ namespace Harmony {
     }
 
     void Service::resume() {
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
 
         if (!m_isThreadManaged) {
             m_logger->warn("Service '{}' has no managed thread; resume() has no effect.", m_name);
@@ -136,7 +136,7 @@ namespace Harmony {
     void Service::run() {
         // Push the service's logger onto the thread-local context stack for the
         // duration of the run loop. Any nested Logger::context() calls resolve here.
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
 
         m_state.store(State::Running, std::memory_order_release);
         m_logger->trace("Service '{}' run loop started on dedicated thread.", m_name);

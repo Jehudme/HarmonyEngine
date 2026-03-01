@@ -54,9 +54,5 @@ namespace Harmony
     };
 }
 
-// Creates a named RAII guard that pushes this extension's logger onto the
-// thread-local context stack for the lifetime of the enclosing scope.
-// Using a named variable (not a bare temporary) ensures the pop happens at
-// end-of-scope rather than end-of-statement.
-#define HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD \
-    auto _harmony_ctx_guard = Harmony::Logger::contextInstance().createGuard(m_logger.get())
+#define HARMONY_CONTEXT_LOGGER_GUARD(logger) \
+    auto _harmony_ctx_guard = Harmony::Logger::contextInstance().createGuard(logger)

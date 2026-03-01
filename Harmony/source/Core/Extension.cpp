@@ -13,7 +13,7 @@ namespace Harmony {
 
     void Extension::initialize(const Properties& properties) {
         std::lock_guard<std::mutex> lock(m_lifecycleMutex);
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
 
         m_logger->trace("Extension '{}' of type '{}' beginning initialization...", m_name, m_type);
         onInitialize(properties);
@@ -24,7 +24,7 @@ namespace Harmony {
 
     void Extension::finalize() {
         std::lock_guard<std::mutex> lock(m_lifecycleMutex);
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
 
         m_logger->info("Extension '{}' of type '{}' beginning finalization...", m_name, m_type);
         onFinalize();
@@ -35,7 +35,7 @@ namespace Harmony {
 
     void Extension::update(float deltaTime) {
         std::lock_guard<std::mutex> lock(m_lifecycleMutex);
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
 
         m_logger->trace("Extension '{}' of type '{}' processing update frame...", m_name, m_type);
         onUpdate(deltaTime);
@@ -43,7 +43,7 @@ namespace Harmony {
 
     void Extension::render() {
         std::lock_guard<std::mutex> lock(m_lifecycleMutex);
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
 
         m_logger->trace("Extension '{}' of type '{}' processing render frame...", m_name, m_type);
         onRender();
@@ -51,7 +51,7 @@ namespace Harmony {
 
     void Extension::event() {
         std::lock_guard<std::mutex> lock(m_lifecycleMutex);
-        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
 
         m_logger->trace("Extension '{}' of type '{}' processing events...", m_name, m_type);
         onEvent();
