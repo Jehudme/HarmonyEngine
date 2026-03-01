@@ -3,7 +3,7 @@
 
 #include "Harmony/Core/Extension.h"
 #include "Harmony/Core/Engine.h"
-#include "../../include/Harmony/Core/Logger.h"
+#include "Harmony/Core/Logger.h"
 #include "Harmony/Core/Registry.h"
 
 namespace Harmony
