@@ -18,18 +18,22 @@ namespace Harmony
 
     void Engine::onInitialize(const Properties& properties)
     {
+        kernel->initialize(properties);
     }
 
     void Engine::onUpdate()
-    {;
+    {
+        kernel->update();
     }
 
     void Engine::onRender()
     {
+        kernel->render();
     }
 
     void Engine::onEvent()
     {
+        kernel->event();
     }
 
     // --- Gestion du cycle de vie du Service ---
@@ -42,11 +46,12 @@ namespace Harmony
     void Engine::onShutdown()
     {
         logger->info("Engine Service shutting down...");
-        onFinalize();
+        finalize();
     }
 
     void Engine::onFinalize()
     {
+        kernel->finalize();
     }
 
     void Engine::onPause()  { logger->info("Engine Paused."); }

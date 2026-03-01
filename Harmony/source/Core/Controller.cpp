@@ -2,7 +2,7 @@
 
 namespace Harmony {
     Controller::Controller(const std::string& name, const std::string type, Engine& engine) :
-        name(name), type(type), engine(engine) {}
+        name(name), type(type), engine(engine), logger(std::make_unique<Logger>(name)) {}
 
     Controller::~Controller() = default;
 

@@ -32,7 +32,7 @@ namespace Harmony {
         virtual void onRender() = 0;
         virtual void onEvent() = 0;
 
-        std::unique_ptr<Logger> logger = std::make_unique<Logger>();
+        std::unique_ptr<Logger> logger;
         Guarded<State> state = Guarded<State>(State::Shutdown);
 
         Engine& engine;

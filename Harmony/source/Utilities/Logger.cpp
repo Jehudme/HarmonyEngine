@@ -93,7 +93,7 @@ namespace Harmony {
 
     Logger& Logger::instance()
     {
-        static Logger logger("Global", Properties("logger_config.json"));
+        static Logger logger("Global");
         return logger;
     }
 
