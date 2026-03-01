@@ -1,18 +1,23 @@
 #pragma once
 #include "Harmony/Utilities/Guarded.h"
-#include "Harmony/Utilities/Logger.h"
+#include "Harmony/Core/Logger.h"
 #include "Harmony/Utilities/Properties.h"
-#include "Harmony/Utilities/Uncopyable.h"
 
 namespace Harmony {
     class Engine;
 
-    class Controller : private Uncopyable {
+    class Controller {
     public:
         enum class State { Initialized, Running, Paused, Shutdown };
 
         explicit Controller(const std::string& name, const std::string type, Engine& engine);
         virtual ~Controller();
+
+        Controller& operator=(const Controller&) = delete;
+        Controller(const Controller&) = delete;
+
+        Controller& operator=(Controller&&) noexcept = delete;
+        Controller(Controller&&) noexcept = delete;
 
         virtual void initialize(const Properties& properties);
         virtual void finalize();
@@ -33,7 +38,7 @@ namespace Harmony {
         virtual void onEvent() = 0;
 
         std::unique_ptr<Logger> logger;
-        Guarded<State> state = Guarded<State>(State::Shutdown);
+        Guarded<State> state;
 
         Engine& engine;
         const std::string name;

@@ -5,7 +5,6 @@
 #include <tuple>
 
 #include <Harmony/Utilities/Properties.h>
-#include <Harmony/Utilities/Uncopyable.h>
 #include "Harmony/Core/Controller.h"
 
 namespace Harmony

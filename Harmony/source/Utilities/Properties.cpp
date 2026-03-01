@@ -7,7 +7,7 @@
 #include <stdexcept>
 #include <fstream>
 
-#include "Harmony/Utilities/Logger.h"
+#include "../../include/Harmony/Core/Logger.h"
 
 namespace Harmony {
 

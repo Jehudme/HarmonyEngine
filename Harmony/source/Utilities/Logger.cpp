@@ -1,4 +1,4 @@
-#include "Harmony/Utilities/Logger.h"
+#include "../../include/Harmony/Core/Logger.h"
 #include "Harmony/Details/DefaultLoggerConfig.inc"
 
 // spdlog includes
@@ -9,11 +9,14 @@
 #include <spdlog/sinks/rotating_file_sink.h>
 #include <spdlog/sinks/daily_file_sink.h>
 
+#include "Harmony/Core/ContextLogger.h"
+
 namespace Harmony {
 
     struct Logger::Impl {
         std::shared_ptr<spdlog::logger> spd_logger;
     };
+
 
     Logger::Logger(const std::string& name, const Properties& properties) : pimpl(std::make_unique<Impl>()) {
 
@@ -91,11 +94,18 @@ namespace Harmony {
 
     Logger::~Logger() = default;
 
-    Logger& Logger::instance()
+    Logger& Logger::global()
     {
         static Logger logger("Global");
         return logger;
     }
+
+    Logger& Logger::context()
+    {
+        static thread_local Context context;
+        return *context.get();
+    }
+
 
     void Logger::dispatch_log(const Level level, const std::string& message) const
     {

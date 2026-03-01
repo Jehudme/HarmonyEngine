@@ -3,7 +3,7 @@
 
 #include "Harmony/Core/Controller.h"
 #include "Harmony/Core/Engine.h"
-#include "Harmony/Utilities/Logger.h"
+#include "../../include/Harmony/Core/Logger.h"
 #include "Harmony/Core/Registry.h"
 
 namespace Harmony
@@ -26,7 +26,7 @@ namespace Harmony
                 controller(ctrl_type).initialize(module_properties);
             }
 
-            else Logger::instance().critical("Harmony::Kernel::initialize - Failed to create module instance for '{}'", module_name);
+            else Logger::global().critical("Harmony::Kernel::initialize - Failed to create module instance for '{}'", module_name);
         });
     }
 
@@ -34,7 +34,7 @@ namespace Harmony
     {
     m_world->each<std::unique_ptr<Controller>>([](std::unique_ptr<Controller>&  instance) {
             if (instance) return instance->finalize();
-            Logger::instance().critical("Harmony::Kernel::finalize - Failed to finalize module instance");
+            Logger::global().critical("Harmony::Kernel::finalize - Failed to finalize module instance");
         });
     }
 
@@ -42,7 +42,7 @@ namespace Harmony
     {
         m_world->each<std::unique_ptr<Controller>>([](std::unique_ptr<Controller>& instance) {
             if (instance) return instance->update();
-            Logger::instance().critical("Harmony::Kernel::update - Failed to update module instance");
+            Logger::global().critical("Harmony::Kernel::update - Failed to update module instance");
         });
     }
 
@@ -50,7 +50,7 @@ namespace Harmony
     {
         m_world->each<std::unique_ptr<Controller>>([](std::unique_ptr<Controller>& instance) {
             if (instance) return instance->render();
-            Logger::instance().critical("Harmony::Kernel::render - Failed to render module instance");
+            Logger::global().critical("Harmony::Kernel::render - Failed to render module instance");
         });
     }
 
@@ -58,7 +58,7 @@ namespace Harmony
     {
         m_world->each<std::unique_ptr<Controller>>([](std::unique_ptr<Controller>& instance) {
             if (instance) return instance->event();
-            Logger::instance().critical("Harmony::Kernel::event - Failed to process event for module instance");
+            Logger::global().critical("Harmony::Kernel::event - Failed to process event for module instance");
         });
     }
 

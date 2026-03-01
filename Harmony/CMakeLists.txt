@@ -11,7 +11,7 @@ add_library(Harmony OBJECT ${ENGINE_SOURCES} ${ENGINE_HEADERS}
         include/Harmony/Utilities/Properties.h
         include/Harmony/Utilities/Properties.inl
         source/Utilities/Logger.cpp
-        include/Harmony/Utilities/Logger.h
+        include/Harmony/Core/Logger.h
         include/Harmony/Utilities/Logger.inl
         include/Harmony/Utilities/Guarded.h
         include/Harmony/Core/Controller.h
@@ -19,7 +19,6 @@ add_library(Harmony OBJECT ${ENGINE_SOURCES} ${ENGINE_HEADERS}
         source/Core/Controller.cpp
         source/Core/Service.cpp
         include/Harmony/Interfaces/IWindow.h
-        include/Harmony/Utilities/Uncopyable.h
         include/Harmony/Core/Registry.h
         include/Harmony/Core/Registry.inl
         source/Core/Engine.cpp
@@ -29,6 +28,8 @@ add_library(Harmony OBJECT ${ENGINE_SOURCES} ${ENGINE_HEADERS}
         source/Core/Kernal.cpp
         source/Modules/RaylibWindow.cpp
         source/Modules/RaylibWindow.h
+        source/Core/ContextLogger.cpp
+        include/Harmony/Core/ContextLogger.h
 )
 
 # Professional Scoping

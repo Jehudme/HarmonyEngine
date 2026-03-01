@@ -9,7 +9,7 @@
 #include <format>
 
 #include <Harmony/Utilities/Guarded.h>
-#include <Harmony/Utilities/Logger.h>
+#include <Harmony/Core/Logger.h>
 
 namespace Harmony
 {
@@ -35,7 +35,7 @@ namespace Harmony
         using RegistryMap = std::unordered_map<std::string, std::any>;
 
         static inline Guarded<RegistryMap> m_registry = Guarded<RegistryMap>();
-        static inline Logger& m_logger = Logger::instance();
+        static inline Logger& m_logger = Logger::global();
     };
 }
 

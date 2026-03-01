@@ -34,7 +34,10 @@ namespace Harmony {
         template<typename... Args>
         void critical(std::format_string<Args...> format, Args&&... args);
 
-        static Logger& instance();
+        static Logger& global();
+        static Logger& context();
+
+        class Context;
 
     private:
         void dispatch_log(Level level, const std::string& message) const;
@@ -42,6 +45,7 @@ namespace Harmony {
         struct Impl;
         std::unique_ptr<Impl> pimpl;
     };
+
 }
 
 #include <Harmony/Utilities/Logger.inl>

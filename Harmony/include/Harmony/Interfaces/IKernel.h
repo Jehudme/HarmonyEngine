@@ -1,12 +1,10 @@
 #pragma once
-#include <Harmony/Utilities/Properties.h>
-
+#include "Harmony/Utilities/Properties.h"
 #include "Harmony/Core/Controller.h"
-#include "Harmony/Utilities/Uncopyable.h"
 
 namespace Harmony
 {
-    class IKernel : private Uncopyable
+    class IKernel
     {
     public:
         explicit IKernel() = default;
