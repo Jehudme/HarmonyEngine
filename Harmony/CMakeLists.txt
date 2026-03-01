@@ -1,3 +1,5 @@
+cmake_minimum_required(VERSION 3.20)
+
 project(Harmony LANGUAGES CXX)
 
 # Find source files
@@ -5,7 +7,7 @@ file(GLOB_RECURSE ENGINE_SOURCES "source/*.cpp")
 file(GLOB_RECURSE ENGINE_HEADERS "include/*.h" "source/*.h")
 
 # Define the static library
-add_library(Harmony STATIC ${ENGINE_SOURCES} ${ENGINE_HEADERS}
+add_library(Harmony OBJECT ${ENGINE_SOURCES} ${ENGINE_HEADERS}
         include/Harmony/Utilities/Properties.h
         include/Harmony/Utilities/Properties.inl
         source/Utilities/Logger.cpp
@@ -23,8 +25,8 @@ add_library(Harmony STATIC ${ENGINE_SOURCES} ${ENGINE_HEADERS}
         source/Core/Engine.cpp
         include/Harmony/Core/Engine.h
         include/Harmony/Interfaces/IKernel.h
+        include/Harmony/Core/Kernal.h
         source/Core/Kernal.cpp
-        source/Core/Kernal.h
         source/Modules/RaylibWindow.cpp
         source/Modules/RaylibWindow.h
 )

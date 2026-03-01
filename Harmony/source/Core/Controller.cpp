@@ -18,6 +18,8 @@ namespace Harmony {
         onInitialize(properties);
 
         logger->info("Initialized");
+
+        state.write([](State& state) { state = State::Initialized; });
     }
 
     void Controller::finalize() {

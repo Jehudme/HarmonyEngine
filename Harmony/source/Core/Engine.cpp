@@ -14,11 +14,13 @@ namespace Harmony
     {
     }
 
-    Engine::~Engine() = default;
+    Engine::~Engine() {
+        Controller::finalize();
+    }
 
     void Engine::onInitialize(const Properties& properties)
     {
-        kernel->initialize(properties);
+        kernel->initialize(*this, properties);
     }
 
     void Engine::onUpdate()
@@ -46,7 +48,6 @@ namespace Harmony
     void Engine::onShutdown()
     {
         logger->info("Engine Service shutting down...");
-        finalize();
     }
 
     void Engine::onFinalize()

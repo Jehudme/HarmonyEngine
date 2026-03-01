@@ -1,0 +1,94 @@
+# ==========================================
+# Build Directories & CMake
+# ==========================================
+build/
+build-*/
+out/
+bin/
+cmake-build-*/
+CMakeCache.txt
+CMakeFiles/
+CMakeScripts/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+compile_commands.json
+CTestTestfile.cmake
+_deps/
+
+# ==========================================
+# Compiled Object Files & Libraries
+# ==========================================
+*.o
+*.obj
+*.ko
+*.elf
+*.a
+*.lib
+*.so
+*.dylib
+*.dll
+*.gch
+*.pch
+
+# ==========================================
+# Executables
+# ==========================================
+*.exe
+*.out
+*.app
+
+# ==========================================
+# IDEs & Code Editors
+# ==========================================
+# CLion / JetBrains
+.idea/
+cmake-build-debug/
+cmake-build-release/
+
+# VSCode
+.vscode/
+*.code-workspace
+
+# Visual Studio
+.vs/
+*.sln
+*.suo
+*.vcxproj
+*.vcxproj.user
+*.vcxproj.filters
+
+# ==========================================
+# Engine Specific (Logs & Assets)
+# ==========================================
+# Ignore the generated log files from your DefaultLoggerConfig.inc
+logs/
+*.log
+
+# Ignore copied assets in Sandbox build, but KEEP the source assets folder
+Sandbox/cmake-build-*/assets/
+Sandbox/build/assets/
+
+# ==========================================
+# CodeQL & CI/CD
+# ==========================================
+_codeql_build_dir/
+_codeql_detected_source_root
+
+# ==========================================
+# OS Generated Files
+# ==========================================
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# Linux
+*~
+.directory
