@@ -2,6 +2,8 @@
 #include "Harmony/Interfaces/IKernel.h"
 #include "Harmony/Utilities/Properties.h"
 
+#include <memory>
+
 namespace flecs {
     struct world;
 }
@@ -13,7 +15,7 @@ namespace Harmony
         Kernal();
         ~Kernal() override;
 
-        void initialize(const Properties& properties) override;
+        void initialize(Engine& engine, const Properties& properties) override;
         void finalize() override;
 
         virtual void update() override;
@@ -22,7 +24,7 @@ namespace Harmony
 
         Controller& controller(const std::string& type) override;
 
-
-        flecs::world world;
+    private:
+        std::unique_ptr<flecs::world> m_world;
     };
 }

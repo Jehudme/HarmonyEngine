@@ -12,7 +12,7 @@ namespace Harmony
         explicit IKernel() = default;
         virtual ~IKernel() = default;
 
-        virtual void initialize(const Properties& properties) = 0;
+        virtual void initialize(Engine& engine, const Properties& properties) = 0;
         virtual void finalize() = 0;
 
         virtual void update() = 0;

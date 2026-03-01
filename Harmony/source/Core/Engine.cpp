@@ -18,7 +18,7 @@ namespace Harmony
 
     void Engine::onInitialize(const Properties& properties)
     {
-        kernel->initialize(properties);
+        kernel->initialize(*this, properties);
     }
 
     void Engine::onUpdate()

@@ -23,8 +23,8 @@ add_library(Harmony STATIC ${ENGINE_SOURCES} ${ENGINE_HEADERS}
         source/Core/Engine.cpp
         include/Harmony/Core/Engine.h
         include/Harmony/Interfaces/IKernel.h
+        include/Harmony/Core/Kernal.h
         source/Core/Kernal.cpp
-        source/Core/Kernal.h
         source/Modules/RaylibWindow.cpp
         source/Modules/RaylibWindow.h
 )

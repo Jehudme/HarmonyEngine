@@ -61,7 +61,7 @@ namespace Harmony
                 return nullptr;
             }
 
-            using FactoryType = std::function<std::unique_ptr<Type>(std::decay_t<Args>...)>;
+            using FactoryType = std::function<std::unique_ptr<Type>(Args...)>;
 
             try {
                 // If the user requests wrong types or args, any_cast throws safely
