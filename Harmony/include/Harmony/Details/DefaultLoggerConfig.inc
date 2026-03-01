@@ -3,7 +3,7 @@
 
 namespace Harmony
 {
-    constexpr const char* DEFAULT_LOGGER_NAME = "Harmony";
+    constexpr const char* DEFAULT_LOGGER_NAME = "Unknow";
     constexpr const char* DEFAULT_LEVEL_STR = "info";
     constexpr const char* DEFAULT_PATTERN = "[%Y-%m-%d %H:%M:%S.%e] [%n] [%^%l%$] %v";
     constexpr const char* DEFAULT_FLUSH_ON = "err";

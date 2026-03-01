@@ -1,10 +1,12 @@
 #include "Harmony/Core/Controller.h"
 
 namespace Harmony {
-    Controller::Controller(Engine& engine) : engine(engine) {}
+    Controller::Controller(const std::string& name, const std::string type, Engine& engine) :
+        name(name), type(type), engine(engine) {}
+
     Controller::~Controller() = default;
 
-    void Controller::Initialize(const Properties& properties) {
+    void Controller::initialize(const Properties& properties) {
         std::lock_guard<std::mutex> lock(m_mutex);
 
         std::optional<Properties> loggerProperties = properties.getSubProperties({"logger"});
@@ -18,7 +20,7 @@ namespace Harmony {
         logger->info("Initialized");
     }
 
-    void Controller::Finalize() {
+    void Controller::finalize() {
         std::lock_guard<std::mutex> lock(m_mutex);
 
         logger->info("Finalizing... ");
@@ -53,4 +55,7 @@ namespace Harmony {
 
         logger->trace("Processed events");
     }
+
+    const std::string& Controller::getName() const { return name; }
+    const std::string& Controller::getType() const { return type; }
 }

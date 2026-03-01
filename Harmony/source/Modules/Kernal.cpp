@@ -13,24 +13,55 @@ namespace Harmony
     void Kernal::initialize(const Properties& properties)
     {
         flecs::entity modules = world.entity("Kernel::Modules");
-        properties.foreach({"modules"}, [&](const std::string& module_type, const Properties& module_properties)
+        properties.foreach({"modules"}, [&](const std::string& module_name, const Properties& module_properties)
         {
-            const std::string module_name = module_properties.getKeys()
-                .or_else([] { Logger::globalInstance().critical("Harmony::Kernel::initialize - Failed to get module name"); return std::optional<Properties::Keys>{}; })
-                .value()[0];
-
-            flecs::entity module = world.entity(module_type.c_str());
-            module.add(flecs::Module);
-            module.child_of(modules);
-
             if (std::unique_ptr<Controller> instance = Registry::create<Controller>(module_name)) {
+                flecs::entity module = world.entity(instance->getType().c_str());
+                module.add(flecs::Module);
+                modules.add(module);
+
                 module.set<std::unique_ptr<Controller>>(std::move(instance));
-                module.get<std::unique_ptr<Controller>>()->Initialize(properties);
+                controller(instance->getType()).initialize(module_properties);
             }
 
-            else Logger::globalInstance().critical("Harmony::Kernel::initialize - Failed to create module instance for '{}'", module_name);
-
+            else Logger::instance().critical("Harmony::Kernel::initialize - Failed to create module instance for '{}'", module_name);
         });
-    };
+    }
+
+    void Kernal::finalize()
+    {
+    world.each<std::unique_ptr<Controller>>([](std::unique_ptr<Controller>&  instance) {
+            if (instance) return instance->finalize();
+            Logger::instance().critical("Harmony::Kernel::finalize - Failed to finalize module instance");
+        });
+    }
+
+    void Kernal::update()
+    {
+        world.each<std::unique_ptr<Controller>>([](std::unique_ptr<Controller>& instance) {
+            if (instance) return instance->update();
+            Logger::instance().critical("Harmony::Kernel::finalize - Failed to finalize module instance");
+        });
+    }
+
+    void Kernal::render()
+    {
+        world.each<std::unique_ptr<Controller>>([](std::unique_ptr<Controller>& instance) {
+            if (instance) return instance->render();
+            Logger::instance().critical("Harmony::Kernel::finalize - Failed to finalize module instance");
+        });
+    }
+
+    void Kernal::event()
+    {
+        world.each<std::unique_ptr<Controller>>([](std::unique_ptr<Controller>& instance) {
+            if (instance) return instance->event();
+            Logger::instance().critical("Harmony::Kernel::finalize - Failed to finalize module instance");
+        });
+    }
+
+    Controller& Kernal::controller(const std::string& type) {
+        return *world.entity(type.c_str()).get<std::unique_ptr<Controller>>();
+    }
 
 }

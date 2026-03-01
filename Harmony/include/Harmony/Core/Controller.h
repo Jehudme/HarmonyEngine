@@ -11,15 +11,18 @@ namespace Harmony {
     public:
         enum class State { Initialized, Running, Paused, Shutdown };
 
-        explicit Controller(Engine& engine);
+        explicit Controller(const std::string& name, const std::string type, Engine& engine);
         virtual ~Controller();
 
-        virtual void Initialize(const Properties& properties);
-        virtual void Finalize();
+        virtual void initialize(const Properties& properties);
+        virtual void finalize();
 
         virtual void update();
         virtual void render();
         virtual void event();
+
+        const std::string& getName() const;
+        const std::string& getType() const;
 
     protected:
         virtual void onInitialize(const Properties& properties) = 0;
@@ -33,6 +36,8 @@ namespace Harmony {
         Guarded<State> state = Guarded<State>(State::Shutdown);
 
         Engine& engine;
+        const std::string name;
+        const std::string type;
 
     private:
         std::mutex m_mutex;

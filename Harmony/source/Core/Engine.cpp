@@ -9,7 +9,7 @@
 namespace Harmony
 {
     Engine::Engine(std::unique_ptr<IKernel> kernel) :
-        Harmony::Service(*this),
+        Harmony::Service("engine", "engine", *this),
         kernel(std::move(kernel))
     {
     }

@@ -2,7 +2,7 @@
 
 namespace Harmony {
 
-    Service::Service(Engine& engine) : Controller(engine) {
+    Service::Service(const std::string& name, const std::string type, Engine& engine) : Controller(name, type, engine) {
     }
 
     // ========================================================================

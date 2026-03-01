@@ -29,15 +29,12 @@ namespace Harmony
     class IWindow : public Controller
     {
     public:
-        explicit IWindow(Engine& engine) : Controller(engine) {}
+        explicit IWindow(const std::string& name, Engine& engine) : Controller(name, "window", engine) {}
         ~IWindow() override = default;
 
         // ==========================================
         // Lifecycle & Core Loop
         // ==========================================
-        virtual bool initialize(const Properties& properties) = 0;
-        virtual void terminate() = 0;
-
         virtual void processEvents() = 0;
         virtual void swapBuffers() = 0;
 

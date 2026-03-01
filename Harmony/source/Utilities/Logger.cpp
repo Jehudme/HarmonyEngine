@@ -15,25 +15,24 @@ namespace Harmony {
         std::shared_ptr<spdlog::logger> spd_logger;
     };
 
-    Logger::Logger(const Properties& properties) : pimpl(std::make_unique<Impl>()) {
+    Logger::Logger(const std::string& name, const Properties& properties) : pimpl(std::make_unique<Impl>()) {
 
         // 1. Extract Core Settings
-        std::string name    = properties.get<std::string>({"Logger", "Name"}).value_or(DEFAULT_LOGGER_NAME);
-        std::string lvl_str = properties.get<std::string>({"Logger", "Level"}).value_or(DEFAULT_LEVEL_STR);
-        std::string pattern = properties.get<std::string>({"Logger", "Pattern"}).value_or(DEFAULT_PATTERN);
-        std::string fls_str = properties.get<std::string>({"Logger", "FlushOn"}).value_or(DEFAULT_FLUSH_ON);
+        std::string lvl_str = properties.get<std::string>({"level"}).value_or(DEFAULT_LEVEL_STR);
+        std::string pattern = properties.get<std::string>({"pattern"}).value_or(DEFAULT_PATTERN);
+        std::string fls_str = properties.get<std::string>({"flush_on"}).value_or(DEFAULT_FLUSH_ON);
 
         // 2. Extract Async Settings
-        bool async_enabled    = properties.get<bool>({"Logger", "Async", "Enabled"}).value_or(DEFAULT_ASYNC_ENABLED);
-        int32_t async_q_size  = properties.get<int32_t>({"Logger", "Async", "QueueSize"}).value_or(DEFAULT_ASYNC_QUEUE_SIZE);
-        int32_t async_threads = properties.get<int32_t>({"Logger", "Async", "ThreadCount"}).value_or(DEFAULT_ASYNC_THREAD_COUNT);
+        bool async_enabled    = properties.get<bool>({"async", "enabled"}).value_or(DEFAULT_ASYNC_ENABLED);
+        int32_t async_q_size  = properties.get<int32_t>({"async", "queue_size"}).value_or(DEFAULT_ASYNC_QUEUE_SIZE);
+        int32_t async_threads = properties.get<int32_t>({"async", "thread_count"}).value_or(DEFAULT_ASYNC_THREAD_COUNT);
 
         // 3. Build Sinks
         std::vector<spdlog::sink_ptr> sinks;
 
         // Console Sink
-        if (properties.get<bool>({"Logger", "Sinks", "Console", "Enabled"}).value_or(DEFAULT_SINK_CONSOLE_ENABLED)) {
-            bool use_color = properties.get<bool>({"Logger", "Sinks", "Console", "Color"}).value_or(DEFAULT_SINK_CONSOLE_COLOR);
+        if (properties.get<bool>({"sinks", "console", "enabled"}).value_or(DEFAULT_SINK_CONSOLE_ENABLED)) {
+            bool use_color = properties.get<bool>({"sinks", "console", "color"}).value_or(DEFAULT_SINK_CONSOLE_COLOR);
             if (use_color) {
                 sinks.push_back(std::make_shared<spdlog::sinks::stdout_color_sink_mt>());
             } else {
@@ -45,27 +44,27 @@ namespace Harmony {
         }
 
         // Basic File Sink
-        if (properties.get<bool>({"Logger", "Sinks", "BasicFile", "Enabled"}).value_or(DEFAULT_SINK_BASIC_ENABLED)) {
-            std::string path = properties.get<std::string>({"Logger", "Sinks", "BasicFile", "Path"}).value_or(DEFAULT_SINK_BASIC_PATH);
-            bool truncate    = properties.get<bool>({"Logger", "Sinks", "BasicFile", "Truncate"}).value_or(DEFAULT_SINK_BASIC_TRUNCATE);
+        if (properties.get<bool>({"sinks", "basic_file", "enabled"}).value_or(DEFAULT_SINK_BASIC_ENABLED)) {
+            std::string path = properties.get<std::string>({"Lsinks", "basic_file", "path"}).value_or(DEFAULT_SINK_BASIC_PATH);
+            bool truncate    = properties.get<bool>({"sinks", "basic_file", "truncate"}).value_or(DEFAULT_SINK_BASIC_TRUNCATE);
             sinks.push_back(std::make_shared<spdlog::sinks::basic_file_sink_mt>(path, truncate));
         }
 
         // Rotating File Sink
-        if (properties.get<bool>({"Logger", "Sinks", "RotatingFile", "Enabled"}).value_or(DEFAULT_SINK_ROTATING_ENABLED)) {
-            std::string path = properties.get<std::string>({"Logger", "Sinks", "RotatingFile", "Path"}).value_or(DEFAULT_SINK_ROTATING_PATH);
-            int32_t max_mb   = properties.get<int32_t>({"Logger", "Sinks", "RotatingFile", "MaxSizeMB"}).value_or(DEFAULT_SINK_ROTATING_MAX_MB);
-            int32_t max_files= properties.get<int32_t>({"Logger", "Sinks", "RotatingFile", "MaxFiles"}).value_or(DEFAULT_SINK_ROTATING_MAX_FILES);
+        if (properties.get<bool>({"sinks", "rotating_file", "enabled"}).value_or(DEFAULT_SINK_ROTATING_ENABLED)) {
+            std::string path = properties.get<std::string>({"sinks", "rotating_file", "path"}).value_or(DEFAULT_SINK_ROTATING_PATH);
+            int32_t max_mb   = properties.get<int32_t>({"sinks", "rotating_file", "max_size"}).value_or(DEFAULT_SINK_ROTATING_MAX_MB);
+            int32_t max_files= properties.get<int32_t>({"sinks", "rotating_file", "max_files"}).value_or(DEFAULT_SINK_ROTATING_MAX_FILES);
 
             size_t max_bytes = static_cast<size_t>(max_mb) * 1024 * 1024;
             sinks.push_back(std::make_shared<spdlog::sinks::rotating_file_sink_mt>(path, max_bytes, max_files));
         }
 
         // Daily File Sink
-        if (properties.get<bool>({"Logger", "Sinks", "DailyFile", "Enabled"}).value_or(DEFAULT_SINK_DAILY_ENABLED)) {
-            std::string path = properties.get<std::string>({"Logger", "Sinks", "DailyFile", "Path"}).value_or(DEFAULT_SINK_DAILY_PATH);
-            int32_t hour     = properties.get<int32_t>({"Logger", "Sinks", "DailyFile", "Hour"}).value_or(DEFAULT_SINK_DAILY_HOUR);
-            int32_t minute   = properties.get<int32_t>({"Logger", "Sinks", "DailyFile", "Minute"}).value_or(DEFAULT_SINK_DAILY_MINUTE);
+        if (properties.get<bool>({"sinks", "daily_file", "enabled"}).value_or(DEFAULT_SINK_DAILY_ENABLED)) {
+            std::string path = properties.get<std::string>({"sinks", "daily_file", "path"}).value_or(DEFAULT_SINK_DAILY_PATH);
+            int32_t hour     = properties.get<int32_t>({"sinks", "daily_file", "hour"}).value_or(DEFAULT_SINK_DAILY_HOUR);
+            int32_t minute   = properties.get<int32_t>({"sinks", "daily_file", "minute"}).value_or(DEFAULT_SINK_DAILY_MINUTE);
             sinks.push_back(std::make_shared<spdlog::sinks::daily_file_sink_mt>(path, hour, minute));
         }
 
@@ -84,15 +83,17 @@ namespace Harmony {
         pimpl->spd_logger->set_level(spdlog::level::from_str(lvl_str));
         pimpl->spd_logger->flush_on(spdlog::level::from_str(fls_str));
 
-        // 6. Register globally in spdlog registry (optional but recommended for multi-threading)
-        spdlog::register_logger(pimpl->spd_logger);
+        // 6. Register globally in spdlog registry
+        if (name != DEFAULT_LOGGER_NAME) spdlog::register_logger(pimpl->spd_logger);
     }
+
+    Logger::Logger(const Properties& properties) : Logger(DEFAULT_LOGGER_NAME, properties) {}
 
     Logger::~Logger() = default;
 
-    Logger& Logger::globalInstance()
+    Logger& Logger::instance()
     {
-        static Logger logger(Properties("logger_config.json"));
+        static Logger logger("Global", Properties("logger_config.json"));
         return logger;
     }
 

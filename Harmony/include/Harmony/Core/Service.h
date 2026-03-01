@@ -9,7 +9,7 @@ namespace Harmony {
     class Service : public Controller
     {
     public:
-        explicit Service(Engine& engine);
+        explicit Service(const std::string& name, const std::string type, Engine& engine);
         ~Service() override = default;
 
         void start();

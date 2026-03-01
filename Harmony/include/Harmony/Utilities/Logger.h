@@ -11,7 +11,9 @@ namespace Harmony {
     public:
         enum class Level { TRACE, DEBUG, INFO, WARNING, ERROR, CRITICAL };
 
+        explicit Logger(const std::string& name, const Properties& properties = Properties());
         explicit Logger(const Properties& properties = Properties());
+
         ~Logger();
 
         template<typename... Args>
@@ -32,7 +34,7 @@ namespace Harmony {
         template<typename... Args>
         void critical(std::format_string<Args...> format, Args&&... args);
 
-        static Logger& globalInstance();
+        static Logger& instance();
 
     private:
         void dispatch_log(Level level, const std::string& message) const;
