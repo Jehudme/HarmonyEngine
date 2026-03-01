@@ -1,7 +1,12 @@
 #include <Harmony/Core/Service.h>
 #include "Harmony/Core/ContextLogger.h"
+#include <chrono>
 
 namespace Harmony {
+
+    // Target maximum tick rate for the raw loop (1000 FPS cap) to prevent CPU pegging
+    static constexpr float kMaxTickRate = 1000.0f;
+    static constexpr float kMinFrameTime = 1.0f / kMaxTickRate;
 
     Service::Service(const std::string& name, const std::string& type, Engine& engine)
         : Extension(name, type, engine) {
@@ -15,32 +20,30 @@ namespace Harmony {
         HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
 
         // Validate transition: Only an 'Initialized' service can move to 'Running'.
-        const bool canStart = m_state.read([this](const State& currentState) -> bool {
-            if (currentState == State::Running) {
-                m_logger->warn("Service '{}' of type '{}' is already running; ignoring start() call.", m_name, m_type);
-                return false;
-            }
-            if (currentState == State::Shutdown) {
-                m_logger->error("Cannot start service '{}': it has been shut down permanently.", m_name);
-                return false;
-            }
-            if (currentState == State::Paused) {
-                m_logger->error("Service '{}' is paused; use resume() to continue execution.", m_name);
-                return false;
-            }
-            return currentState == State::Initialized;
-        });
-
-        if (!canStart) return;
+        const State currentState = m_state.load(std::memory_order_acquire);
+        
+        if (currentState == State::Running) {
+            m_logger->warn("Service '{}' of type '{}' is already running; ignoring start() call.", m_name, m_type);
+            return;
+        }
+        if (currentState == State::Shutdown) {
+            m_logger->error("Cannot start service '{}': it has been shut down permanently.", m_name);
+            return;
+        }
+        if (currentState == State::Paused) {
+            m_logger->error("Service '{}' is paused; use resume() to continue execution.", m_name);
+            return;
+        }
+        if (currentState != State::Initialized) {
+            return;
+        }
 
         {
             // Atomically update state and trigger the user-defined startup hook.
             // Lock ensures no concurrent state transitions during initialization.
             std::lock_guard<std::mutex> lock(m_serviceMutex);
-            m_state.write([this](State& stateRef) {
-                stateRef = State::Running;
-                onStart();
-            });
+            m_state.store(State::Running, std::memory_order_release);
+            onStart();
             m_isThreadManaged = true;
             m_logger->info("Service '{}' of type '{}' transitioning to Running state.", m_name, m_type);
         }
@@ -53,22 +56,16 @@ namespace Harmony {
     void Service::stop() {
         HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
 
-        const bool canStop = m_state.read([this](const State& currentState) -> bool {
-            if (currentState == State::Shutdown) {
-                m_logger->warn("Service '{}' of type '{}' is already shut down.", m_name, m_type);
-                return false;
-            }
-            return true;
-        });
-
-        if (!canStop) return;
+        const State currentState = m_state.load(std::memory_order_acquire);
+        if (currentState == State::Shutdown) {
+            m_logger->warn("Service '{}' of type '{}' is already shut down.", m_name, m_type);
+            return;
+        }
 
         {
             std::lock_guard<std::mutex> lock(m_serviceMutex);
-            m_state.write([this](State& stateRef) {
-                stateRef = State::Shutdown;
-                onShutdown();
-            });
+            m_state.store(State::Shutdown, std::memory_order_release);
+            onShutdown();
             m_isThreadManaged = false;
             m_logger->info("Service '{}' of type '{}' transitioning to Shutdown state.", m_name, m_type);
         }
@@ -94,20 +91,16 @@ namespace Harmony {
             return;
         }
 
-        const bool canPause = m_state.read([this](const State& currentState) -> bool {
-            if (currentState != State::Running) {
-                m_logger->error("Service '{}' must be Running to be paused; current state does not allow pause.", m_name);
-                return false;
-            }
-            return true;
-        });
+        const State currentState = m_state.load(std::memory_order_acquire);
+        if (currentState != State::Running) {
+            m_logger->error("Service '{}' must be Running to be paused; current state does not allow pause.", m_name);
+            return;
+        }
 
-        if (canPause) {
+        {
             std::lock_guard<std::mutex> lock(m_serviceMutex);
-            m_state.write([this](State& stateRef) {
-                stateRef = State::Paused;
-                onPause();
-            });
+            m_state.store(State::Paused, std::memory_order_release);
+            onPause();
             m_logger->info("Service '{}' of type '{}' transitioning to Paused state.", m_name, m_type);
         }
     }
@@ -120,26 +113,20 @@ namespace Harmony {
             return;
         }
 
-        const bool canResume = m_state.read([this](const State& currentState) -> bool {
-            if (currentState != State::Paused) {
-                m_logger->error("Service '{}' must be Paused to be resumed; current state does not allow resume.", m_name);
-                return false;
-            }
-            return true;
-        });
-
-        if (canResume) {
-            {
-                std::lock_guard<std::mutex> lock(m_serviceMutex);
-                m_state.write([this](State& stateRef) {
-                    stateRef = State::Running;
-                    onResume();
-                });
-                m_logger->info("Service '{}' of type '{}' transitioning to Running state from Paused.", m_name, m_type);
-            }
-            // Wake the run loop so it can resume execution.
-            m_conditionVariable.notify_all();
+        const State currentState = m_state.load(std::memory_order_acquire);
+        if (currentState != State::Paused) {
+            m_logger->error("Service '{}' must be Paused to be resumed; current state does not allow resume.", m_name);
+            return;
         }
+
+        {
+            std::lock_guard<std::mutex> lock(m_serviceMutex);
+            m_state.store(State::Running, std::memory_order_release);
+            onResume();
+            m_logger->info("Service '{}' of type '{}' transitioning to Running state from Paused.", m_name, m_type);
+        }
+        // Wake the run loop so it can resume execution.
+        m_conditionVariable.notify_all();
     }
 
     // ========================================================================
@@ -151,11 +138,17 @@ namespace Harmony {
         // duration of the run loop. Any nested Logger::context() calls resolve here.
         HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
 
-        m_state.write([](State& stateRef) { stateRef = State::Running; });
+        m_state.store(State::Running, std::memory_order_release);
         m_logger->trace("Service '{}' run loop started on dedicated thread.", m_name);
 
+        using Clock = std::chrono::high_resolution_clock;
+        auto lastFrameTime = Clock::now();
+
         while (true) {
-            const State currentState = m_state.read([](const State& stateRef) { return stateRef; });
+            // Capture frame start time at the very beginning of each iteration
+            auto frameStartTime = Clock::now();
+            
+            const State currentState = m_state.load(std::memory_order_acquire);
 
             if (currentState == State::Shutdown) {
                 m_logger->trace("Service '{}' detected Shutdown state; exiting run loop.", m_name);
@@ -167,16 +160,33 @@ namespace Harmony {
                 // prevents busy-waiting while paused.
                 std::unique_lock<std::mutex> pauseLock(m_serviceMutex);
                 m_conditionVariable.wait(pauseLock, [this] {
-                    return m_state.read([](const State& stateRef) { return stateRef != State::Paused; });
+                    return m_state.load(std::memory_order_acquire) != State::Paused;
                 });
+                // Reset timing after pause to avoid large delta spikes
+                lastFrameTime = Clock::now();
                 continue; // Re-evaluate state immediately after waking.
             }
 
             // Standard Execution Pulse: update, render, and process events.
             if (currentState == State::Running) {
-                onUpdate();
+                // Calculate delta time since last frame started
+                std::chrono::duration<float> frameDuration = frameStartTime - lastFrameTime;
+                float deltaTime = frameDuration.count();
+                lastFrameTime = frameStartTime;
+
+                onUpdate(deltaTime);
                 onRender();
                 onEvent();
+
+                // CPU yielding: If frame completed faster than the minimum frame time,
+                // yield to prevent pegging the CPU at 100% when VSync is off.
+                auto frameEndTime = Clock::now();
+                std::chrono::duration<float> frameProcessingTime = frameEndTime - frameStartTime;
+                float processingTime = frameProcessingTime.count();
+                
+                if (processingTime < kMinFrameTime) {
+                    std::this_thread::yield();
+                }
             }
         }
 

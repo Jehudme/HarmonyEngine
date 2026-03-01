@@ -5,6 +5,7 @@
 #include "Harmony/Core/Engine.h"
 #include "Harmony/Core/Logger.h"
 #include "Harmony/Core/Registry.h"
+#include <array>
 
 namespace Harmony
 {
@@ -19,7 +20,8 @@ namespace Harmony
         flecs::entity modulesRoot = m_world->entity("Kernel::Modules");
 
         // Iterate over each module defined in the "modules" section of the config.
-        properties.foreach({"modules"}, [&](const std::string& moduleName, const Properties& moduleProperties)
+        constexpr std::array<std::string_view, 1> modulesPath = {"modules"};
+        properties.foreach(std::span<const std::string_view>(modulesPath), [&](const std::string& moduleName, const Properties& moduleProperties)
         {
             // Attempt to instantiate the extension via the type registry.
             std::unique_ptr<Extension> extensionInstance = Registry::create<Extension>(moduleName, engine);
@@ -62,12 +64,12 @@ namespace Harmony
         Logger::global().info("Kernel finalization complete.");
     }
 
-    void Kernel::update()
+    void Kernel::update(float deltaTime)
     {
         // Propagate update call to all registered extensions in ECS iteration order.
-        m_world->each<std::unique_ptr<Extension>>([](std::unique_ptr<Extension>& extensionInstance) {
+        m_world->each<std::unique_ptr<Extension>>([deltaTime](std::unique_ptr<Extension>& extensionInstance) {
             if (extensionInstance) {
-                return extensionInstance->update();
+                return extensionInstance->update(deltaTime);
             }
             Logger::global().critical("Kernel::update - Encountered null extension instance during update.");
         });

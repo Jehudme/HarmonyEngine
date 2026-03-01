@@ -1,5 +1,6 @@
 #pragma once
-#include "Harmony/Utilities/Guarded.h"
+#include <atomic>
+#include <mutex>
 #include "Harmony/Core/Logger.h"
 #include "Harmony/Utilities/Properties.h"
 
@@ -8,7 +9,7 @@ namespace Harmony {
 
     // Extension is the base class for all engine modules. It encapsulates a named,
     // stateful lifecycle that the Kernel drives through initialize/update/render/event/finalize.
-    // Extensions are designed to be thread-safe through internal mutex protection.
+    // Extensions use lock-free atomic state management for high-performance state transitions.
     class Extension {
     public:
         enum class State { Initialized, Running, Paused, Shutdown };
@@ -25,7 +26,7 @@ namespace Harmony {
         virtual void initialize(const Properties& properties);
         virtual void finalize();
 
-        virtual void update();
+        virtual void update(float deltaTime);
         virtual void render();
         virtual void event();
 
@@ -36,15 +37,15 @@ namespace Harmony {
         virtual void onInitialize(const Properties& properties) = 0;
         virtual void onFinalize() = 0;
 
-        virtual void onUpdate() = 0;
+        virtual void onUpdate(float deltaTime) = 0;
         virtual void onRender() = 0;
         virtual void onEvent() = 0;
 
         // Logger instance for this extension; pushed onto thread-local context during callbacks.
         std::unique_ptr<Logger> m_logger;
 
-        // Thread-safe state wrapper using reader-writer lock semantics.
-        Guarded<State> m_state;
+        // Lock-free atomic state for high-performance state transitions.
+        std::atomic<State> m_state;
 
         // Reference to the owning Engine for cross-extension communication.
         Engine& m_engine;
