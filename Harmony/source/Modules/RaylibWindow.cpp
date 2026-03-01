@@ -2,6 +2,8 @@
 #include "Modules/Details/RaylibWindowConfig.inc"
 #include <raylib.h>
 #include <Harmony/Core/Registry.h>
+#include <array>
+#include <span>
 
 #include "Harmony/Core/Engine.h"
 #include "Harmony/Core/ContextLogger.h"
@@ -20,22 +22,23 @@ namespace Harmony
         HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
 
         // Helper lambda to extract a property with fallback logging.
-        auto getPropertyOrDefault = [this, &properties]<typename T>(
-            const std::vector<std::string>& keyPath,
+        // Uses std::array for zero-allocation key path lookups.
+        auto getPropertyOrDefault = [this, &properties]<typename T, size_t N>(
+            const std::array<std::string_view, N>& keyPath,
             const T& defaultValue,
             const std::string& propertyName) -> T
         {
-            if (auto optionalValue = properties.get<T>(keyPath)) {
+            if (auto optionalValue = properties.get<T>(std::span<const std::string_view>(keyPath))) {
                 return *optionalValue;
             }
             m_logger->warn("RaylibWindow '{}': Property '{}' not found; using default value.", m_name, propertyName);
             return defaultValue;
         };
 
-        int32_t windowWidth = getPropertyOrDefault({"width"}, static_cast<int32_t>(DEFAULT_WINDOW_WIDTH), "width");
-        int32_t windowHeight = getPropertyOrDefault({"height"}, static_cast<int32_t>(DEFAULT_WINDOW_HEIGHT), "height");
-        std::string windowTitle = getPropertyOrDefault({"title"}, std::string(DEFAULT_WINDOW_TITLE), "title");
-        bool vsyncEnabled = getPropertyOrDefault({"vsync"}, DEFAULT_WINDOW_VSYNC, "vsync");
+        int32_t windowWidth = getPropertyOrDefault(std::array<std::string_view, 1>{"width"}, static_cast<int32_t>(DEFAULT_WINDOW_WIDTH), "width");
+        int32_t windowHeight = getPropertyOrDefault(std::array<std::string_view, 1>{"height"}, static_cast<int32_t>(DEFAULT_WINDOW_HEIGHT), "height");
+        std::string windowTitle = getPropertyOrDefault(std::array<std::string_view, 1>{"title"}, std::string(DEFAULT_WINDOW_TITLE), "title");
+        bool vsyncEnabled = getPropertyOrDefault(std::array<std::string_view, 1>{"vsync"}, DEFAULT_WINDOW_VSYNC, "vsync");
 
         m_logger->info("RaylibWindow '{}': Creating window with dimensions {}x{} and title '{}'.",
                        m_name, windowWidth, windowHeight, windowTitle);
@@ -54,10 +57,12 @@ namespace Harmony
         m_logger->info("RaylibWindow '{}': Window closed.", m_name);
     }
 
-    void RaylibWindow::onUpdate()
+    void RaylibWindow::onUpdate(float deltaTime)
     {
         HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
         // Core engine updates are managed by Kernel; no window-specific update logic needed.
+        // deltaTime parameter available for future use by derived classes.
+        (void)deltaTime;
     }
 
     void RaylibWindow::onRender()

@@ -40,7 +40,8 @@ namespace Harmony {
 
     // Traverses the JSON tree along keyPath, returning a pointer to the terminal node.
     // Returns nullptr if any step is missing or the node is not an object.
-    static const glz::json_t* traverseToNode(const glz::json_t& rootNode, const std::vector<std::string>& keyPath)
+    // Uses std::span<const std::string_view> for zero-allocation path traversal.
+    static const glz::json_t* traverseToNode(const glz::json_t& rootNode, std::span<const std::string_view> keyPath)
     {
         const glz::json_t* currentNode = &rootNode;
         for (const auto& pathSegment : keyPath) {
@@ -48,7 +49,8 @@ namespace Harmony {
                 return nullptr;
             }
             const auto& objectMap = currentNode->get_object();
-            auto nodeIterator = objectMap.find(pathSegment);
+            // Convert string_view to string for map lookup
+            auto nodeIterator = objectMap.find(std::string(pathSegment));
             if (nodeIterator == objectMap.end()) {
                 return nullptr;
             }
@@ -61,7 +63,7 @@ namespace Harmony {
     // Type-Erased Accessors
     // ============================================================================
 
-    void Properties::setRawValue(const std::vector<std::string>& keyPath, const void* valuePtr, std::type_index type) {
+    void Properties::setRawValue(Path keyPath, const void* valuePtr, std::type_index type) {
         if (keyPath.empty()) {
             return;
         }
@@ -72,7 +74,7 @@ namespace Harmony {
             if (!currentNode->is_object()) {
                 *currentNode = glz::json_t::object_t{};
             }
-            currentNode = &currentNode->get_object()[keyPath[pathIndex]];
+            currentNode = &currentNode->get_object()[std::string(keyPath[pathIndex])];
         }
 
         if (!currentNode->is_object()) {
@@ -81,7 +83,7 @@ namespace Harmony {
 
         // Round-trip through JSON text so that any supported C++ type can be
         // stored in the schema-less glaze tree without type-specific specialization.
-        glz::json_t& targetNode = currentNode->get_object()[keyPath.back()];
+        glz::json_t& targetNode = currentNode->get_object()[std::string(keyPath.back())];
 
         #define PROPERTIES_SET_CASE(Type) \
             if (type == typeid(Type)) { \
@@ -97,7 +99,7 @@ namespace Harmony {
         throw std::runtime_error("Properties::set - Unsupported type for serialization.");
     }
 
-    bool Properties::getRawValue(const std::vector<std::string>& keyPath, void* resultPtr, std::type_index type) const {
+    bool Properties::getRawValue(Path keyPath, void* resultPtr, std::type_index type) const {
         if (keyPath.empty()) {
             return false;
         }
@@ -128,7 +130,7 @@ namespace Harmony {
         return false;
     }
 
-    std::optional<Properties::Keys> Properties::getKeys(const std::vector<std::string>& keyPath) const {
+    std::optional<Properties::Keys> Properties::getKeys(Path keyPath) const {
         const glz::json_t* targetNode = traverseToNode(pimpl->data, keyPath);
         if (!targetNode || !targetNode->is_object()) {
             return std::nullopt;
@@ -141,7 +143,7 @@ namespace Harmony {
         return extractedKeys;
     }
 
-    std::optional<Properties> Properties::getSubProperties(const std::vector<std::string>& keyPath) const {
+    std::optional<Properties> Properties::getSubProperties(Path keyPath) const {
         const glz::json_t* targetNode = traverseToNode(pimpl->data, keyPath);
         if (!targetNode || !targetNode->is_object()) {
             return std::nullopt;
@@ -168,21 +170,21 @@ namespace Harmony {
         fileStream << jsonOutput;
     }
 
-    void Properties::foreach(const Path& keyPath, std::function<void(const std::string& key, const Properties& properties)> callback) const {
+    void Properties::foreach(Path keyPath, std::function<void(const std::string& key, const Properties& properties)> callback) const {
         // Traverse to the target object node, throwing on any invalid step so
         // callers receive a clear diagnostic instead of a silent no-op.
         const glz::json_t* currentNode = &pimpl->data;
 
         for (const auto& pathSegment : keyPath) {
             if (!currentNode->is_object()) {
-                throw std::runtime_error("Properties::foreach - Path segment '" + pathSegment + "' is not an object.");
+                throw std::runtime_error("Properties::foreach - Path segment '" + std::string(pathSegment) + "' is not an object.");
             }
 
             auto& objectMap = currentNode->get_object();
-            auto nodeIterator = objectMap.find(pathSegment);
+            auto nodeIterator = objectMap.find(std::string(pathSegment));
 
             if (nodeIterator == objectMap.end()) {
-                throw std::runtime_error("Properties::foreach - Key '" + pathSegment + "' not found in path.");
+                throw std::runtime_error("Properties::foreach - Key '" + std::string(pathSegment) + "' not found in path.");
             }
 
             currentNode = &nodeIterator->second;

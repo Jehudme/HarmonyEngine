@@ -12,7 +12,7 @@ namespace Harmony
         // Extension overrides
         void onInitialize(const Properties& properties) override;
         void onFinalize() override;
-        void onUpdate() override;
+        void onUpdate(float deltaTime) override;
         void onRender() override;
         void onEvent() override;
 

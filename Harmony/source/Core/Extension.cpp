@@ -1,5 +1,6 @@
 #include "Harmony/Core/Extension.h"
 #include "Harmony/Core/ContextLogger.h"
+#include <array>
 
 namespace Harmony {
 
@@ -15,7 +16,8 @@ namespace Harmony {
 
         // Allow the logger to be reconfigured from a "logger" sub-object in properties.
         // This enables per-extension logging configuration via JSON.
-        if (auto loggerProperties = properties.getSubProperties({"logger"})) {
+        constexpr std::array<std::string_view, 1> loggerPath = {"logger"};
+        if (auto loggerProperties = properties.getSubProperties(std::span<const std::string_view>(loggerPath))) {
             m_logger = std::make_unique<Logger>(*loggerProperties);
         }
 
@@ -27,7 +29,7 @@ namespace Harmony {
         onInitialize(properties);
         m_logger->info("Extension '{}' of type '{}' initialized successfully.", m_name, m_type);
 
-        m_state.write([](State& stateRef) { stateRef = State::Initialized; });
+        m_state.store(State::Initialized, std::memory_order_release);
     }
 
     void Extension::finalize() {
@@ -38,15 +40,15 @@ namespace Harmony {
         onFinalize();
         m_logger->info("Extension '{}' of type '{}' finalization complete.", m_name, m_type);
 
-        m_state.write([](State& stateRef) { stateRef = State::Shutdown; });
+        m_state.store(State::Shutdown, std::memory_order_release);
     }
 
-    void Extension::update() {
+    void Extension::update(float deltaTime) {
         std::lock_guard<std::mutex> lock(m_lifecycleMutex);
         HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
 
         m_logger->trace("Extension '{}' of type '{}' processing update frame...", m_name, m_type);
-        onUpdate();
+        onUpdate(deltaTime);
     }
 
     void Extension::render() {

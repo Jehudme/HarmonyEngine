@@ -27,10 +27,10 @@ namespace Harmony
         m_logger->info("Engine '{}' kernel initialization complete.", m_name);
     }
 
-    void Engine::onUpdate()
+    void Engine::onUpdate(float deltaTime)
     {
         HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
-        m_kernel->update();
+        m_kernel->update(deltaTime);
     }
 
     void Engine::onRender()

@@ -18,7 +18,7 @@ namespace Harmony
         void initialize(Engine& engine, const Properties& properties) override;
         void finalize() override;
 
-        void update() override;
+        void update(float deltaTime) override;
         void render() override;
         void event() override;
 

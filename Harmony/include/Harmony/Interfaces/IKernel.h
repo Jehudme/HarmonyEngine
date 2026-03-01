@@ -13,7 +13,7 @@ namespace Harmony
         virtual void initialize(Engine& engine, const Properties& properties) = 0;
         virtual void finalize() = 0;
 
-        virtual void update() = 0;
+        virtual void update(float deltaTime) = 0;
         virtual void render() = 0;
         virtual void event() = 0;
 
