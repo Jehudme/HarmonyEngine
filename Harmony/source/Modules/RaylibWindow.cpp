@@ -4,6 +4,7 @@
 #include <Harmony/Core/Registry.h>
 
 #include "Harmony/Core/Engine.h"
+#include "Harmony/Core/ContextLogger.h"
 
 namespace Harmony
 {
@@ -16,25 +17,27 @@ namespace Harmony
 
     void RaylibWindow::onInitialize(const Properties& properties)
     {
+        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+
         int32_t width = DEFAULT_WINDOW_WIDTH;
         if (auto optWidth = properties.get<int32_t>({"width"})) {
             width = *optWidth;
         } else {
-            m_logger->warn("Property 'width' not found. Using default: {}", width);
+            m_logger->warn("Extension '{}': Property 'width' not found. Using default value: {}", m_name, width);
         }
 
         int32_t height = DEFAULT_WINDOW_HEIGHT;
         if (auto optHeight = properties.get<int32_t>({"height"})) {
             height = *optHeight;
         } else {
-            m_logger->warn("Property 'height' not found. Using default: {}", height);
+            m_logger->warn("Extension '{}': Property 'height' not found. Using default value: {}", m_name, height);
         }
 
         std::string title = DEFAULT_WINDOW_TITLE;
         if (auto optTitle = properties.get<std::string>({"title"})) {
             title = *optTitle;
         } else {
-            m_logger->warn("Property 'title' not found. Using default: {}", title);
+            m_logger->warn("Extension '{}': Property 'title' not found. Using default value: '{}'", m_name, title);
         }
 
         InitWindow(width, height, title.c_str());
@@ -42,19 +45,26 @@ namespace Harmony
         if (auto optVsync = properties.get<bool>({"vsync"})) {
             setVSync(*optVsync);
         } else {
-            m_logger->warn("Property 'vsync' not found. Using default: {}", DEFAULT_WINDOW_VSYNC);
+            m_logger->warn("Extension '{}': Property 'vsync' not found. Using default value: {}", m_name, DEFAULT_WINDOW_VSYNC);
             setVSync(DEFAULT_WINDOW_VSYNC);
         }
     }
 
-    void RaylibWindow::onFinalize() { CloseWindow(); }
+    void RaylibWindow::onFinalize()
+    {
+        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        CloseWindow();
+    }
 
-    void RaylibWindow::onUpdate() {
+    void RaylibWindow::onUpdate()
+    {
+        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
         // Core engine updates managed by Kernel
     }
 
     void RaylibWindow::onRender()
     {
+        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
         // Raylib requires drawing to be wrapped in these calls to swap buffers
         BeginDrawing();
         ClearBackground(RAYWHITE);
@@ -64,12 +74,14 @@ namespace Harmony
         EndDrawing();
     }
 
-    void RaylibWindow::onEvent() {// Check if the user pressed the close button or the ESC key
+    void RaylibWindow::onEvent()
+    {
+        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        // Check if the user pressed the close button or the ESC key
         if (WindowShouldClose()) {
-            m_logger->info("Window close event detected. Signalling engine shutdown...");
+            m_logger->info("Extension '{}' of type '{}': Window close event detected. Signaling engine shutdown...", m_name, m_type);
             m_engine.stop();
         }
-
     }
 
     // ==========================================

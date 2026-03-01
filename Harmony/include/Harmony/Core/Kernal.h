@@ -1,30 +1,9 @@
 #pragma once
-#include "Harmony/Interfaces/IKernel.h"
-#include "Harmony/Utilities/Properties.h"
+// Backward-compatibility header: Kernal has been renamed to Kernel.
+// See Harmony/Core/Kernel.h for the current definition.
+#include "Harmony/Core/Kernel.h"
 
-#include <memory>
-
-namespace flecs {
-    struct world;
-}
-
-namespace Harmony
-{
-    class Kernal : public IKernel {
-        public:
-        Kernal();
-        ~Kernal() override;
-
-        void initialize(Engine& engine, const Properties& properties) override;
-        void finalize() override;
-
-        void update() override;
-        void render() override;
-        void event() override;
-
-        Extension& extension(const std::string& type) override;
-
-    private:
-        std::unique_ptr<flecs::world> m_world;
-    };
+namespace Harmony {
+    // Type alias so that existing code referencing Kernal continues to compile.
+    using Kernal = Kernel;
 }

@@ -33,9 +33,25 @@ namespace Harmony {
         return *this;
     }
 
+    // Traverses the JSON tree along key_path, returning a pointer to the terminal node.
+    // Read-only variant: returns nullptr if any step is missing or not an object.
+    static const glz::json_t* traverseToNode(const glz::json_t& root, const std::vector<std::string>& key_path)
+    {
+        const glz::json_t* current_node = &root;
+        for (const auto& key : key_path) {
+            if (!current_node->is_object()) return nullptr;
+            const auto& object_map = current_node->get_object();
+            auto iterator = object_map.find(key);
+            if (iterator == object_map.end()) return nullptr;
+            current_node = &iterator->second;
+        }
+        return current_node;
+    }
+
     void Properties::_set_raw(const std::vector<std::string>& key_path, const void* ptr, std::type_index type) {
         if (key_path.empty()) return;
 
+        // Walk all but the last key, creating intermediate object nodes as needed.
         glz::json_t* current_node = &pimpl->data;
         for (size_t index = 0; index < key_path.size() - 1; ++index) {
             if (!current_node->is_object()) {
@@ -48,6 +64,8 @@ namespace Harmony {
             *current_node = glz::json_t::object_t{};
         }
 
+        // Round-trip through JSON text so that any supported C++ type can be
+        // stored in the schema-less glaze tree without a type-specific specialization.
         glz::json_t& target_node = current_node->get_object()[key_path.back()];
 
         #define PROPERTIES_SET_CASE(Type) \
@@ -67,15 +85,11 @@ namespace Harmony {
     bool Properties::_get_raw(const std::vector<std::string>& key_path, void* ptr, std::type_index type) const {
         if (key_path.empty()) return false;
 
-        const glz::json_t* current_node = &pimpl->data;
-        for (const auto& key : key_path) {
-            if (!current_node->is_object()) return false;
-            auto& object_map = current_node->get_object();
-            auto iterator = object_map.find(key);
-            if (iterator == object_map.end()) return false;
-            current_node = &iterator->second;
-        }
+        // Locate the terminal node; return false immediately on any missing step.
+        const glz::json_t* current_node = traverseToNode(pimpl->data, key_path);
+        if (!current_node) return false;
 
+        // Round-trip the node through JSON text for type-safe deserialization.
         #define PROPERTIES_GET_CASE(Type) \
             if (type == typeid(Type)) { \
                 std::string conversion_buffer; \
@@ -96,16 +110,8 @@ namespace Harmony {
     }
 
     std::optional<Properties::Keys> Properties::getKeys(const std::vector<std::string>& key_path) const {
-        const glz::json_t* current_node = &pimpl->data;
-        for (const auto& key : key_path) {
-            if (!current_node->is_object()) return std::nullopt;
-            auto& object_map = current_node->get_object();
-            auto iterator = object_map.find(key);
-            if (iterator == object_map.end()) return std::nullopt;
-            current_node = &iterator->second;
-        }
-
-        if (!current_node->is_object()) return std::nullopt;
+        const glz::json_t* current_node = traverseToNode(pimpl->data, key_path);
+        if (!current_node || !current_node->is_object()) return std::nullopt;
 
         Keys extracted_keys;
         for (const auto& pair : current_node->get_object()) {
@@ -115,16 +121,8 @@ namespace Harmony {
     }
 
     std::optional<Properties> Properties::getSubProperties(const std::vector<std::string>& key_path) const {
-        const glz::json_t* current_node = &pimpl->data;
-        for (const auto& key : key_path) {
-            if (!current_node->is_object()) return std::nullopt;
-            auto& object_map = current_node->get_object();
-            auto iterator = object_map.find(key);
-            if (iterator == object_map.end()) return std::nullopt;
-            current_node = &iterator->second;
-        }
-
-        if (!current_node->is_object()) return std::nullopt;
+        const glz::json_t* current_node = traverseToNode(pimpl->data, key_path);
+        if (!current_node || !current_node->is_object()) return std::nullopt;
 
         Properties sub_properties;
         sub_properties.pimpl->data = *current_node;
@@ -146,6 +144,8 @@ namespace Harmony {
     }
 
     void Properties::foreach(const Path& key_path, std::function<void(const std::string& key, const Properties& properties)> function) const {
+        // Traverse to the target object node, throwing on any invalid step so
+        // callers receive a clear diagnostic instead of a silent no-op.
         const glz::json_t* current_node = &pimpl->data;
 
         for (const auto& step : key_path) {

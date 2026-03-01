@@ -61,10 +61,12 @@ namespace Harmony
                 return nullptr;
             }
 
+            // Type erasure: the factory was stored as std::any holding a typed std::function.
+            // any_cast recovers the concrete FactoryType; a mismatch between the stored
+            // Base/Args and the requested Type/Args throws std::bad_any_cast safely here.
             using FactoryType = std::function<std::unique_ptr<Type>(Args...)>;
 
             try {
-                // If the user requests wrong types or args, any_cast throws safely
                 const auto& factory = std::any_cast<const FactoryType&>(factoryEntry->second);
                 m_logger.trace("Creating instance '{}' for type '{}'.", name, typeid(Type).name());
                 return factory(std::forward<Args>(args)...);
