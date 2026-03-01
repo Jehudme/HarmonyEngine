@@ -145,6 +145,9 @@ namespace Harmony {
         auto lastFrameTime = Clock::now();
 
         while (true) {
+            // Capture frame start time at the very beginning of each iteration
+            auto frameStartTime = Clock::now();
+            
             const State currentState = m_state.load(std::memory_order_acquire);
 
             if (currentState == State::Shutdown) {
@@ -166,11 +169,10 @@ namespace Harmony {
 
             // Standard Execution Pulse: update, render, and process events.
             if (currentState == State::Running) {
-                // Calculate delta time
-                auto currentTime = Clock::now();
-                std::chrono::duration<float> frameDuration = currentTime - lastFrameTime;
+                // Calculate delta time since last frame started
+                std::chrono::duration<float> frameDuration = frameStartTime - lastFrameTime;
                 float deltaTime = frameDuration.count();
-                lastFrameTime = currentTime;
+                lastFrameTime = frameStartTime;
 
                 onUpdate(deltaTime);
                 onRender();
@@ -179,7 +181,7 @@ namespace Harmony {
                 // CPU yielding: If frame completed faster than the minimum frame time,
                 // yield to prevent pegging the CPU at 100% when VSync is off.
                 auto frameEndTime = Clock::now();
-                std::chrono::duration<float> frameProcessingTime = frameEndTime - currentTime;
+                std::chrono::duration<float> frameProcessingTime = frameEndTime - frameStartTime;
                 float processingTime = frameProcessingTime.count();
                 
                 if (processingTime < kMinFrameTime) {
