@@ -7,8 +7,8 @@ namespace Harmony
 
     Logger* Logger::Context::get()
     {
-        if (loggers.empty()) return nullptr;
-        return loggers.top().first;
+        if (m_loggers.empty()) return nullptr;
+        return m_loggers.top().first;
     }
 
     Logger::Context::ScopedGuard Logger::Context::createGuard(Logger* logger)
@@ -23,15 +23,15 @@ namespace Harmony
             return; // FIX: Added return
         }
 
-        if (loggers.empty()) {
-            loggers.emplace(logger, 1); // FIX: Emplace is cleaner
+        if (m_loggers.empty()) {
+            m_loggers.emplace(logger, 1); // FIX: Emplace is cleaner
             return;
         }
 
-        if (loggers.top().first == logger) {
-            loggers.top().second++;
+        if (m_loggers.top().first == logger) {
+            m_loggers.top().second++;
         } else {
-            loggers.emplace(logger, 1);
+            m_loggers.emplace(logger, 1);
         }
     }
 
@@ -42,35 +42,35 @@ namespace Harmony
             return;
         }
 
-        if (loggers.empty()) {
+        if (m_loggers.empty()) {
             Logger::global().error("Attempted to pop from an empty context stack.");
             return;
         }
 
         // FIX: Ensure we are popping the correct logger
-        if (loggers.top().first != logger) {
+        if (m_loggers.top().first != logger) {
             Logger::global().error("Context stack corruption: Attempted to pop a logger that is not at the top.");
             return;
         }
 
-        loggers.top().second--;
-        if (loggers.top().second == 0) {
-            loggers.pop();
+        m_loggers.top().second--;
+        if (m_loggers.top().second == 0) {
+            m_loggers.pop();
         }
     }
 
-    Logger::Context::ScopedGuard::ScopedGuard(Context& ctx, Logger* lgr)
-        : context(&ctx), logger(lgr)
+    Logger::Context::ScopedGuard::ScopedGuard(Context& loggerContext, Logger* targetLogger)
+        : m_context(&loggerContext), m_logger(targetLogger)
     {
-        if (context) {
-            context->push(logger);
+        if (m_context) {
+            m_context->push(m_logger);
         }
     }
 
     Logger::Context::ScopedGuard::~ScopedGuard()
     {
-        if (context && logger) {
-            context->pop(logger);
+        if (m_context && m_logger) {
+            m_context->pop(m_logger);
         }
     }
 

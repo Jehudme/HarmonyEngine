@@ -26,6 +26,8 @@ add_library(Harmony OBJECT ${ENGINE_SOURCES} ${ENGINE_HEADERS}
         source/Core/Engine.cpp
         include/Harmony/Core/Engine.h
         include/Harmony/Interfaces/IKernel.h
+        include/Harmony/Core/Kernel.h
+        source/Core/Kernel.cpp
         include/Harmony/Core/Kernal.h
         source/Core/Kernal.cpp
         source/Modules/RaylibWindow.cpp

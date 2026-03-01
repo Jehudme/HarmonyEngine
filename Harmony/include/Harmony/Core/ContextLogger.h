@@ -30,7 +30,7 @@ namespace Harmony
         void push(Logger* logger);
         void pop(Logger* logger);
 
-        std::stack<std::pair<Logger*, uint16_t>> loggers;
+        std::stack<std::pair<Logger*, uint16_t>> m_loggers;
     };
 
     class Logger::Context::ScopedGuard
@@ -47,10 +47,10 @@ namespace Harmony
         ~ScopedGuard();
 
     private:
-        ScopedGuard(Context& context, Logger* logger);
+        ScopedGuard(Context& loggerContext, Logger* targetLogger);
 
-        Context* context;
-        Logger* logger;
+        Context* m_context;
+        Logger* m_logger;
     };
 }
 

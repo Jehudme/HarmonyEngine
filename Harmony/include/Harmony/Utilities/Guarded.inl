@@ -69,6 +69,7 @@ namespace Harmony {
     template<typename ValueType>
     template<typename FunctionType>
     auto Guarded<ValueType>::read(FunctionType function) const -> decltype(function(std::declval<const ValueType&>())) {
+        // shared_lock allows multiple concurrent readers; no writer can hold the mutex simultaneously.
         std::shared_lock lock(m_mutex);
         return function(*m_value);
     }
@@ -76,6 +77,7 @@ namespace Harmony {
     template<typename ValueType>
     template<typename FunctionType>
     auto Guarded<ValueType>::write(FunctionType function) -> decltype(function(std::declval<ValueType&>())) {
+        // scoped_lock acquires exclusive ownership; all readers and other writers are blocked until release.
         std::scoped_lock lock(m_mutex);
         return function(*m_value);
     }

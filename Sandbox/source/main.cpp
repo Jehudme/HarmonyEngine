@@ -8,7 +8,7 @@ int main()
     Harmony::Properties properties;
     properties.load("assets/application.json");
 
-    auto kernel = std::make_unique<Harmony::Kernal>();
+    auto kernel = std::make_unique<Harmony::Kernel>();
     Harmony::Engine engine(std::move(kernel));
 
     // Initializes the engine and loads all modules dynamically via the registry

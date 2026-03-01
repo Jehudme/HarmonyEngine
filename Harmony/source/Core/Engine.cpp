@@ -5,6 +5,7 @@
 
 #include "Harmony/Core/Service.h"
 #include "Harmony/Interfaces/IKernel.h"
+#include "Harmony/Core/ContextLogger.h"
 
 namespace Harmony
 {
@@ -40,12 +41,14 @@ namespace Harmony
 
     void Engine::onStart()
     {
-        m_logger->info("Engine service is now running.");
+        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        m_logger->info("Service '{}' of type '{}' has started. Game loop is now running.", m_name, m_type);
     }
 
     void Engine::onShutdown()
     {
-        m_logger->info("Engine service is shutting down...");
+        HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD;
+        m_logger->info("Service '{}' of type '{}' received shutdown signal. Terminating game loop...", m_name, m_type);
     }
 
     void Engine::onFinalize()
@@ -53,7 +56,7 @@ namespace Harmony
         kernel->finalize();
     }
 
-    void Engine::onPause()  { m_logger->info("Engine service paused."); }
-    void Engine::onResume() { m_logger->info("Engine service resumed."); }
+    void Engine::onPause()  { HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD; m_logger->info("Service '{}' of type '{}' has been paused.", m_name, m_type); }
+    void Engine::onResume() { HARMONY_EXTENSION_CONTEXT_LOGGER_GUARD; m_logger->info("Service '{}' of type '{}' has been resumed.", m_name, m_type); }
 
 } // namespace Harmony
