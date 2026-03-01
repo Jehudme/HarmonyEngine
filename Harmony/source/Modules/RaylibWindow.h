@@ -3,10 +3,11 @@
 
 namespace Harmony
 {
-    class RaylibWindow : public IWindow
+    class RaylibWindow final : public IWindow
     {
     public:
         explicit RaylibWindow(Engine& engine);
+        ~RaylibWindow() override = default;
 
         // Controller overrides
         void onInitialize(const Properties& properties) override;
@@ -74,12 +75,5 @@ namespace Harmony
         CursorMode getCursorMode() const override;
         void setClipboardText(const std::string& text) override;
         std::string getClipboardText() const override;
-
-    private:
-        std::string m_title;
-        float m_opacity = 1.0f;
-        bool m_vsync = false;
-        bool m_shouldClose = false;
-        CursorMode m_cursorMode = CursorMode::Normal;
     };
 }

@@ -1,4 +1,6 @@
 #include <iostream>
+#include <thread>
+#include <chrono>
 #include <Harmony/Harmony.h>
 
 int main()
@@ -8,17 +10,14 @@ int main()
 
     auto kernel = std::make_unique<Harmony::Kernal>();
     Harmony::Engine engine(std::move(kernel));
+
+    // Initializes the engine and loads all modules dynamically via the registry
     engine.initialize(properties);
 
-    auto& window = static_cast<Harmony::IWindow&>(engine.kernel->controller("window"));
+    // Engine inherits from Service. start() launches the game loop thread.
+    engine.run();
 
-    while (!window.shouldClose())
-    {
-        engine.update();
-        engine.render();
-        window.swapBuffers();
-    }
-
-    engine.finalize();
+    // Gracefully shut down the engine loop and join the thread
+    engine.stop();
     return 0;
 }

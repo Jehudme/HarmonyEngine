@@ -36,11 +36,6 @@ namespace Harmony {
     }
 
     void Service::stop() {
-        if (!m_managedThread) {
-            logger->error("Stop failed: Service does not possess a managed worker thread.");
-            return;
-        }
-
         const bool canStop = state.read([this](const State& current) -> bool {
             if (current == State::Shutdown) return (logger->warn("Service already shutdown."), false);
             return true;
@@ -49,7 +44,6 @@ namespace Harmony {
         if (!canStop) return;
 
         {
-            // Transition to Shutdown; this will cause the 'run' loop to break.
             std::lock_guard<std::mutex> lock(m_mutex);
             state.write([this](State& state) {
                 state = State::Shutdown;
@@ -110,13 +104,8 @@ namespace Harmony {
     // ========================================================================
 
     void Service::run() {
-        /*
-         * Main Execution Loop
-         * * This loop utilizes a hybrid locking strategy:
-         * 1. A shared-lock (Read) to check if we should continue running.
-         * 2. A unique-lock (Mutex) combined with a condition variable for
-         * low-overhead idling when the service is paused.
-         */
+        state.write([this](State& state) { state = State::Running; });
+
         while (true) {
             const State current = state.read([](const State& s) { return s; });
 
