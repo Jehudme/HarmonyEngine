@@ -35,7 +35,7 @@ namespace Harmony {
         virtual void onRender() = 0;
         virtual void onEvent() = 0;
 
-        std::unique_ptr<Logger> m_logger;
+        Logger m_logger;
         std::atomic<State> m_state;
         IKernel& m_kernel;
 
@@ -45,4 +45,19 @@ namespace Harmony {
     private:
         std::mutex m_lifecycleMutex;
     };
+
+    using ExtensionPtr = std::unique_ptr<Extension>;
+
+    struct ExtensionComponent {
+        ExtensionPtr instance;
+    };
+
+#define HARMONY_DECLARE_EXTENSION(ExtType)                          \
+    public:                                                         \
+        static constexpr std::string_view EXTENSION_TYPE = ExtType; \
+        const std::string& getType() const override {               \
+            static const std::string typeStr{EXTENSION_TYPE};       \
+            return typeStr;                                         \
+        }
+
 }

@@ -8,17 +8,36 @@
 #include <filesystem>
 #include <functional>
 #include <optional>
+#include <initializer_list>
 
 namespace Harmony {
 
     // Properties provides a type-safe, JSON-backed configuration system.
     // Values are stored in a schema-less JSON tree and accessed via typed get/set methods.
     // Type conversion is performed through JSON serialization/deserialization round-trips.
-    // Uses std::span<const std::string_view> for zero-allocation key path lookups.
     class Properties {
     public:
         using Keys = std::vector<std::string>;
-        using Path = std::span<const std::string_view>;
+
+        // Path accepts both std::initializer_list<std::string_view> (for convenient inline
+        // usage like {"key1", "key2"}) and std::span<const std::string_view> (for backward
+        // compatibility with existing code passing arrays/spans).
+        struct Path {
+            std::span<const std::string_view> m_span;
+
+            Path() = default;
+            Path(std::initializer_list<std::string_view> il) : m_span(il.begin(), il.size()) {}
+            Path(std::span<const std::string_view> sp) : m_span(sp) {}
+
+            auto begin() const { return m_span.begin(); }
+            auto end() const { return m_span.end(); }
+            std::size_t size() const { return m_span.size(); }
+            bool empty() const { return m_span.empty(); }
+            const std::string_view& operator[](std::size_t i) const { return m_span[i]; }
+            const std::string_view& back() const { return m_span.back(); }
+
+            operator std::span<const std::string_view>() const { return m_span; }
+        };
 
         Properties();
         explicit Properties(const std::filesystem::path& filepath);

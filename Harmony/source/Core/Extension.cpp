@@ -5,7 +5,7 @@
 namespace Harmony {
 
     Extension::Extension(const std::string& name, const std::string& type, IKernel& kernel) :
-        m_logger(std::make_unique<Logger>(name)),
+        m_logger(name),
         m_name(name), m_type(type), m_kernel(kernel),
         m_state(State::Shutdown) {}
 
@@ -13,7 +13,7 @@ namespace Harmony {
 
     void Extension::initialize(const Properties& properties) {
         std::lock_guard<std::mutex> lock(m_lifecycleMutex);
-        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
+        HARMONY_CONTEXT_LOGGER_GUARD(&m_logger);
         onInitialize(properties);
 
         m_state.store(State::Initialized, std::memory_order_release);
@@ -21,7 +21,7 @@ namespace Harmony {
 
     void Extension::finalize() {
         std::lock_guard<std::mutex> lock(m_lifecycleMutex);
-        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
+        HARMONY_CONTEXT_LOGGER_GUARD(&m_logger);
         onFinalize();
 
         m_state.store(State::Shutdown, std::memory_order_release);
@@ -29,19 +29,19 @@ namespace Harmony {
 
     void Extension::update() {
         std::lock_guard<std::mutex> lock(m_lifecycleMutex);
-        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
+        HARMONY_CONTEXT_LOGGER_GUARD(&m_logger);
         onUpdate();
     }
 
     void Extension::render() {
         std::lock_guard<std::mutex> lock(m_lifecycleMutex);
-        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
+        HARMONY_CONTEXT_LOGGER_GUARD(&m_logger);
         onRender();
     }
 
     void Extension::event() {
         std::lock_guard<std::mutex> lock(m_lifecycleMutex);
-        HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
+        HARMONY_CONTEXT_LOGGER_GUARD(&m_logger);
         onEvent();
     }
 

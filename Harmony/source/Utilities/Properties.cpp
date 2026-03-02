@@ -25,11 +25,13 @@ namespace Harmony {
 
     Properties::Properties(const Properties& other) : pimpl(std::make_unique<Impl>()) {
         pimpl->data = other.pimpl->data;
+        pimpl->buffer = other.pimpl->buffer;
     }
 
     Properties& Properties::operator=(const Properties& other) {
         if (this != &other) {
             pimpl->data = other.pimpl->data;
+            pimpl->buffer = other.pimpl->buffer;
         }
         return *this;
     }
