@@ -52,12 +52,12 @@ namespace Harmony {
         ExtensionPtr instance;
     };
 
-#define HARMONY_DECLARE_EXTENSION(ExtType)                          \
-    public:                                                         \
-        static constexpr std::string_view EXTENSION_TYPE = ExtType; \
-        const std::string& getType() const override {               \
-            static const std::string typeStr{EXTENSION_TYPE};       \
-            return typeStr;                                         \
+#define HARMONY_DECLARE_EXTENSION(ExtTypeName)                              \
+    public:                                                                 \
+        static constexpr std::string_view EXTENSION_TYPE = ExtTypeName;     \
+        const std::string& getType() const override {                       \
+            static const std::string typeStr{EXTENSION_TYPE};               \
+            return typeStr;                                                 \
         }
 
 }

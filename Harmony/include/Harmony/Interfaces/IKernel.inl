@@ -3,7 +3,11 @@
 namespace Harmony
 {
     inline Extension* IKernel::getExtension(const std::string& type) {
-        return &extension(type);
+        try {
+            return &extension(type);
+        } catch (...) {
+            return nullptr;
+        }
     }
 
     template<typename ExtensionType>
