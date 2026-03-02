@@ -23,13 +23,10 @@ namespace Harmony {
     template<typename ValueType>
     inline Guarded<ValueType>& Guarded<ValueType>::operator=(const Guarded& other) {
         if (this != &other) {
-            // Nested locking: acquire write lock on 'this', then read lock on 'other'.
-            // Lock ordering is consistent to prevent deadlock in symmetric assignments.
-            this->write([&other](ValueType& thisValue) {
-                other.read([&thisValue](const ValueType& otherValue) {
-                    thisValue = otherValue;
-                });
-            });
+            // Use std::scoped_lock to safely acquire both locks simultaneously,
+            // avoiding deadlock when two threads swap values (a = b, b = a).
+            std::scoped_lock lock(this->m_mutex, other.m_mutex);
+            *m_value = *other.m_value;
         }
         return *this;
     }

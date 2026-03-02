@@ -2,9 +2,18 @@
 
 namespace Harmony
 {
+    inline Extension* IKernel::getExtension(const std::string& type) {
+        try {
+            return &extension(type);
+        } catch (...) {
+            return nullptr;
+        }
+    }
+
     template<typename ExtensionType>
-    ExtensionType& extension() {
-        static_assert(std::is_base_of_v<Extension, ExtensionType>, "T must derive from Extension to be used in extension<T>()");
-        return extension(ExtensionType::getType());
+    ExtensionType* IKernel::getExtension() {
+        static_assert(std::is_base_of_v<Extension, ExtensionType>, "T must derive from Extension to be used in getExtension<T>()");
+        Extension* ext = getExtension(std::string(ExtensionType::EXTENSION_TYPE));
+        return ext ? static_cast<ExtensionType*>(ext) : nullptr;
     }
 }

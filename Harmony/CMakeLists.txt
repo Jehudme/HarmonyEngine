@@ -2,35 +2,40 @@ cmake_minimum_required(VERSION 3.20)
 
 project(Harmony LANGUAGES CXX)
 
-# Find source files
-file(GLOB_RECURSE ENGINE_SOURCES "source/*.cpp")
-file(GLOB_RECURSE ENGINE_HEADERS "include/*.h" "source/*.h")
+# Explicitly listed source files
+set(ENGINE_SOURCES
+    source/Core/Extension.cpp
+    source/Core/ContextLogger.cpp
+    source/Core/Logger.cpp
+    source/Extension/Engine.cpp
+    source/Extension/Kernel.cpp
+    source/Extension/RaylibWindow.cpp
+    source/Utilities/Properties.cpp
+)
+
+set(ENGINE_HEADERS
+    include/Harmony/Harmony.h
+    include/Harmony/Core/Extension.h
+    include/Harmony/Core/ContextLogger.h
+    include/Harmony/Core/Logger.h
+    include/Harmony/Core/Registry.h
+    include/Harmony/Core/Registry.inl
+    include/Harmony/Interfaces/IKernel.h
+    include/Harmony/Interfaces/IKernel.inl
+    include/Harmony/Interfaces/IEngine.h
+    include/Harmony/Interfaces/IWindow.h
+    include/Harmony/Utilities/Guarded.h
+    include/Harmony/Utilities/Guarded.inl
+    include/Harmony/Utilities/Logger.inl
+    include/Harmony/Utilities/Properties.h
+    include/Harmony/Utilities/Properties.inl
+    source/Extension/Engine.h
+    source/Extension/Kernel.h
+    source/Extension/RaylibWindow.h
+)
 
 # Define the static library
-add_library(Harmony OBJECT ${ENGINE_SOURCES} ${ENGINE_HEADERS}
-        include/Harmony/Utilities/Properties.h
-        include/Harmony/Utilities/Properties.inl
-        source/Core/Logger.cpp
-        include/Harmony/Core/Logger.h
-        include/Harmony/Utilities/Logger.inl
-        include/Harmony/Utilities/Guarded.h
-        include/Harmony/Core/Extension.h
-        source/Core/Extension.cpp
-        include/Harmony/Interfaces/IWindow.h
-        include/Harmony/Core/Registry.h
-        include/Harmony/Core/Registry.inl
-        source/Extension/Engine.cpp
-        source/Extension/Engine.h
-        include/Harmony/Interfaces/IKernel.h
-        source/Extension/Kernel.h
-        source/Extension/Kernel.cpp
-        source/Extension/RaylibWindow.cpp
-        source/Extension/RaylibWindow.h
-        source/Core/ContextLogger.cpp
-        include/Harmony/Core/ContextLogger.h
-        include/Harmony/Interfaces/IEngine.h
-        include/Harmony/Interfaces/IKernel.inl
-)
+add_library(Harmony OBJECT ${ENGINE_SOURCES} ${ENGINE_HEADERS})
 
 # Professional Scoping
 target_link_libraries(Harmony

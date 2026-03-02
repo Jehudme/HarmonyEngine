@@ -18,9 +18,12 @@ namespace Harmony
 
         virtual Extension& extension(const std::string& type) = 0;
 
+        // Pointer-returning API for graceful failure (returns nullptr if not found).
+        Extension* getExtension(const std::string& type);
+
         template<typename ExtensionType>
-        ExtensionType& extension();
+        ExtensionType* getExtension();
     };
-};
+}
 
 #include "Harmony/Interfaces/IKernel.inl"

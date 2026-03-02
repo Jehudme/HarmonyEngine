@@ -46,6 +46,13 @@ namespace Harmony {
         class Context;
         static Context& contextInstance();
 
+        // Compatibility helpers: allow value-type Logger to be used
+        // where code previously relied on unique_ptr<Logger> interface.
+        Logger* get() { return this; }
+        const Logger* get() const { return this; }
+        Logger* operator->() { return this; }
+        const Logger* operator->() const { return this; }
+
     private:
         void dispatch_log(Level level, const std::string& message) const;
 

@@ -12,11 +12,8 @@ int main()
     Harmony::Properties properties;
     properties.load("assets/application.json");
 
-    // Create the properly typed array for the span
-    std::array<std::string_view, 1> extPath = {"extensions"};
-
-    // Pass the array to getKeys
-    if (!properties.getKeys(extPath).has_value()) {
+    // Pass keys using the new initializer_list-friendly Path syntax
+    if (!properties.getKeys({"extensions"}).has_value()) {
         mainLogger.error("CRITICAL ERROR: Failed to load application.json!");
         mainLogger.error("Current Working Directory is: {}", std::filesystem::current_path().string());
         return -1;
