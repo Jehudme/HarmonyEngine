@@ -1,17 +1,18 @@
 #include "RaylibWindow.h"
-#include "Modules/Details/RaylibWindowConfig.inc"
+#include "Extension/Details/RaylibWindowConfig.inc"
 #include <raylib.h>
 #include <Harmony/Core/Registry.h>
 #include <array>
 #include <span>
 
-#include "Harmony/Core/Engine.h"
+#include "Engine.h"
 #include "Harmony/Core/ContextLogger.h"
+#include "Harmony/Interfaces/IKernel.h"
 
 namespace Harmony
 {
-    RaylibWindow::RaylibWindow(Engine& engine)
-        : IWindow("window_raylib", engine) {}
+    RaylibWindow::RaylibWindow(IKernel& kernel)
+        : IWindow("window_raylib", kernel) {}
 
     // ==========================================
     // Extension overrides
@@ -57,12 +58,9 @@ namespace Harmony
         m_logger->info("RaylibWindow '{}': Window closed.", m_name);
     }
 
-    void RaylibWindow::onUpdate(float deltaTime)
+    void RaylibWindow::onUpdate()
     {
         HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
-        // Core engine updates are managed by Kernel; no window-specific update logic needed.
-        // deltaTime parameter available for future use by derived classes.
-        (void)deltaTime;
     }
 
     void RaylibWindow::onRender()
@@ -83,7 +81,6 @@ namespace Harmony
         // Check if the user pressed the close button or the ESC key.
         if (WindowShouldClose()) {
             m_logger->info("RaylibWindow '{}' of type '{}': Window close event detected; signaling engine shutdown.", m_name, m_type);
-            m_engine.stop();
         }
     }
 
@@ -107,7 +104,8 @@ namespace Harmony
     {
         HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_logger->trace("RaylibWindow '{}': close() called.", m_name);
-        // Note: This queries close state rather than forcing close.
+        // Note: This queries close state rather than forcing close.HARMONY_REGISTER(Extension, Engine, "engine", const std::string&);
+
         WindowShouldClose();
     }
 
@@ -455,6 +453,6 @@ namespace Harmony
     }
 
     // Auto-Register the Window with the Registry
-    HARMONY_REGISTER(Extension, RaylibWindow, "window_raylib", Engine&)
+    HARMONY_REGISTER(Extension, RaylibWindow, "window_raylib", IKernel&)
 
 } // namespace Harmony

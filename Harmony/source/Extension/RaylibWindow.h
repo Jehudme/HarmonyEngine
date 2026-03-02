@@ -6,14 +6,14 @@ namespace Harmony
     class RaylibWindow final : public IWindow
     {
     public:
-        explicit RaylibWindow(Engine& engine);
+        explicit RaylibWindow(IKernel& kernal);
         ~RaylibWindow() override = default;
 
         // Extension overrides
         void onInitialize(const Properties& properties) override;
         void onFinalize() override;
-        void onUpdate(float deltaTime) override;
         void onRender() override;
+        void onUpdate() override;
         void onEvent() override;
 
         // Lifecycle & Core Loop

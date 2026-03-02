@@ -27,7 +27,6 @@ namespace Harmony
         static_assert(std::is_base_of_v<Base, Derived>, "Derived must inherit from Base");
 
         m_registry.write([&](RegistryMap& registry) {
-            // Factory names must be globally unique; reject duplicates.
             if (registry.contains(factoryName)) {
                 const std::string errorMessage = std::format(
                     "Registry::save - Factory name '{}' is already registered; duplicate registration rejected.", factoryName);
@@ -35,8 +34,6 @@ namespace Harmony
                 throw std::runtime_error(errorMessage);
             }
 
-            // Type erasure: store a typed factory lambda inside std::any.
-            // The factory creates Derived instances and returns them as unique_ptr<Base>.
             using FactoryType = std::function<std::unique_ptr<Base>(Args...)>;
             registry[factoryName] = FactoryType([](Args... args) -> std::unique_ptr<Base> {
                 return std::make_unique<Derived>(std::forward<Args>(args)...);
@@ -69,9 +66,6 @@ namespace Harmony
                 return nullptr;
             }
 
-            // Type erasure recovery: any_cast attempts to extract the typed factory.
-            // If the stored Base/Args signature differs from the requested Type/Args,
-            // std::bad_any_cast is thrown, which we catch to handle gracefully.
             using FactoryType = std::function<std::unique_ptr<Type>(Args...)>;
 
             try {

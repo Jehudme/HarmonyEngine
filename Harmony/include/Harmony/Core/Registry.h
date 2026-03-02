@@ -13,9 +13,6 @@
 
 namespace Harmony
 {
-    // Registry provides a thread-safe type-erased factory system for dynamic object creation.
-    // Types are registered with a string name and created via type-erased factory functions.
-    // This enables runtime-configurable extension instantiation from JSON configuration.
     class Registry
     {
     public:
@@ -26,16 +23,11 @@ namespace Harmony
         Registry(Registry&&) = delete;
         Registry& operator=(Registry&&) = delete;
 
-        // Registers a factory function that creates Derived instances as Base pointers.
-        // The factory accepts Args... and returns std::unique_ptr<Base>.
         template<typename Base, typename Derived, typename ...Args>
         static void save(const std::string& factoryName);
 
-        // Removes a factory from the registry by name.
         static void free(const std::string& factoryName);
 
-        // Creates an instance using the registered factory, returning nullptr on failure.
-        // Type mismatch between stored and requested types is handled gracefully.
         template<typename Type, typename ...Args>
         static std::unique_ptr<Type> create(const std::string& factoryName, Args&& ...args);
 

@@ -4,15 +4,15 @@
 #include <glaze/glaze.hpp>
 #include <map>
 #include <vector>
-#include <stdexcept>
 #include <fstream>
 
-#include "../../include/Harmony/Core/Logger.h"
+#include "Harmony/Core/Logger.h"
 
 namespace Harmony {
 
     struct Properties::Impl {
         glz::json_t data = glz::json_t::object_t{};
+        std::string buffer; // Add this to keep the parsed string alive!
     };
 
     Properties::Properties() : pimpl(std::make_unique<Impl>()) {}
@@ -38,9 +38,6 @@ namespace Harmony {
     // Helper: JSON Tree Traversal
     // ============================================================================
 
-    // Traverses the JSON tree along keyPath, returning a pointer to the terminal node.
-    // Returns nullptr if any step is missing or the node is not an object.
-    // Uses std::span<const std::string_view> for zero-allocation path traversal.
     static const glz::json_t* traverseToNode(const glz::json_t& rootNode, std::span<const std::string_view> keyPath)
     {
         const glz::json_t* currentNode = &rootNode;
@@ -65,6 +62,7 @@ namespace Harmony {
 
     void Properties::setRawValue(Path keyPath, const void* valuePtr, std::type_index type) {
         if (keyPath.empty()) {
+            Logger::context().error("Properties::setRawValue - Key path is empty. Operation ignored.");
             return;
         }
 
@@ -96,17 +94,19 @@ namespace Harmony {
         PROPERTIES_SUPPORTED_TYPES(PROPERTIES_SET_CASE)
         #undef PROPERTIES_SET_CASE
 
-        throw std::runtime_error("Properties::set - Unsupported type for serialization.");
+        Logger::context().error("Properties::setRawValue - Unsupported type '{}' for key '{}'; value not set.", type.name(), keyPath.back());
     }
 
     bool Properties::getRawValue(Path keyPath, void* resultPtr, std::type_index type) const {
         if (keyPath.empty()) {
+            Logger::context().error("Properties::getRawValue - Key path is empty.");
             return false;
         }
 
         // Locate the terminal node; return false immediately on any missing step.
         const glz::json_t* targetNode = traverseToNode(pimpl->data, keyPath);
         if (!targetNode) {
+            Logger::context().warn("Properties::getRawValue - Key path not found in properties.");
             return false;
         }
 
@@ -121,12 +121,14 @@ namespace Harmony {
                     *static_cast<Type*>(resultPtr) = temporaryResult; \
                     return true; \
                 } \
+                Logger::context().error("Properties::getRawValue - JSON parse error for type '{}'.", type.name()); \
                 return false; \
             }
 
         PROPERTIES_SUPPORTED_TYPES(PROPERTIES_GET_CASE)
         #undef PROPERTIES_GET_CASE
 
+        Logger::context().error("Properties::getRawValue - Unsupported type requested: '{}'.", type.name());
         return false;
     }
 
@@ -157,41 +159,54 @@ namespace Harmony {
     void Properties::load(const std::filesystem::path& filepath) {
         std::ifstream fileStream(filepath);
         if (!fileStream.is_open()) {
+            Logger::context().error("Properties::load - Failed to open file: '{}'", filepath.string());
             return;
         }
-        std::string fileContent((std::istreambuf_iterator<char>(fileStream)), std::istreambuf_iterator<char>());
-        (void)glz::read_json(pimpl->data, fileContent);
+
+        // Save the file contents into the pimpl buffer so it lives forever
+        pimpl->buffer.assign((std::istreambuf_iterator<char>(fileStream)), std::istreambuf_iterator<char>());
+
+        // Parse using the persistent buffer
+        auto error = glz::read_json(pimpl->data, pimpl->buffer);
+        if (error) {
+            Logger::context().error("Properties::load - Glaze failed to parse JSON in file: '{}'", filepath.string());
+        }
     }
 
     void Properties::save(const std::filesystem::path& filepath) const {
         std::string jsonOutput;
         (void)glz::write_json(pimpl->data, jsonOutput);
         std::ofstream fileStream(filepath);
+        if (!fileStream.is_open()) {
+            Logger::context().error("Properties::save - Failed to open or create file: '{}'", filepath.string());
+            return;
+        }
         fileStream << jsonOutput;
     }
 
     void Properties::foreach(Path keyPath, std::function<void(const std::string& key, const Properties& properties)> callback) const {
-        // Traverse to the target object node, throwing on any invalid step so
-        // callers receive a clear diagnostic instead of a silent no-op.
         const glz::json_t* currentNode = &pimpl->data;
 
         for (const auto& pathSegment : keyPath) {
             if (!currentNode->is_object()) {
-                throw std::runtime_error("Properties::foreach - Path segment '" + std::string(pathSegment) + "' is not an object.");
+                Logger::context().error("Properties::foreach - Key path segment '{}' is not an object.", pathSegment);
+                return;
             }
 
             auto& objectMap = currentNode->get_object();
             auto nodeIterator = objectMap.find(std::string(pathSegment));
 
             if (nodeIterator == objectMap.end()) {
-                throw std::runtime_error("Properties::foreach - Key '" + std::string(pathSegment) + "' not found in path.");
+                Logger::context().error("Properties::foreach - Key '{}' not found in path.", std::string(pathSegment));
+                return;
             }
 
             currentNode = &nodeIterator->second;
         }
 
         if (!currentNode->is_object()) {
-            throw std::runtime_error("Properties::foreach - Target node at specified path is not an object.");
+            Logger::context().error("Properties::foreach - Target node at specified path is not an object.");
+            return;
         }
 
         for (const auto& [childKey, childValue] : currentNode->get_object()) {

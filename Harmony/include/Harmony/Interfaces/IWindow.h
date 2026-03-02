@@ -28,7 +28,7 @@ namespace Harmony
     class IWindow : public Extension
     {
     public:
-        explicit IWindow(const std::string& name, Engine& engine) : Extension(name, "window", engine) {}
+        explicit IWindow(const std::string& name, IKernel& kernel) : Extension(name, "window", kernel) {}
         ~IWindow() override = default;
 
         // ==========================================

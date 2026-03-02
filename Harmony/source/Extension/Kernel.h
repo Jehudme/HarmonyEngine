@@ -15,16 +15,14 @@ namespace Harmony
         Kernel();
         ~Kernel() override;
 
-        void initialize(Engine& engine, const Properties& properties) override;
-        void finalize() override;
+        void initialize(const Properties& properties) override;
+        void setupAutomation();
 
-        void update(float deltaTime) override;
-        void render() override;
-        void event() override;
-
+        void progress() override;
         Extension& extension(const std::string& type) override;
 
     private:
         std::unique_ptr<flecs::world> m_world;
+        std::unique_ptr<Logger> m_logger;
     };
 }

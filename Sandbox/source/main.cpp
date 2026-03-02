@@ -1,23 +1,33 @@
 #include <iostream>
-#include <thread>
-#include <chrono>
+#include <filesystem>
+#include <array>
+#include <string_view>
 #include <Harmony/Harmony.h>
 
 int main()
 {
+    Harmony::Logger mainLogger("Main");
+    HARMONY_CONTEXT_LOGGER_GUARD(&mainLogger);
+
     Harmony::Properties properties;
     properties.load("assets/application.json");
 
-    auto kernel = std::make_unique<Harmony::Kernel>();
-    Harmony::Engine engine(std::move(kernel));
+    // Create the properly typed array for the span
+    std::array<std::string_view, 1> extPath = {"extensions"};
 
-    // Initializes the engine and loads all modules dynamically via the registry
-    engine.initialize(properties);
+    // Pass the array to getKeys
+    if (!properties.getKeys(extPath).has_value()) {
+        mainLogger.error("CRITICAL ERROR: Failed to load application.json!");
+        mainLogger.error("Current Working Directory is: {}", std::filesystem::current_path().string());
+        return -1;
+    }
 
-    // Engine inherits from Service. start() launches the game loop thread.
-    engine.run();
+    auto kernel = Harmony::Registry::create<Harmony::IKernel>("kernel");
 
-    // Gracefully shut down the engine loop and join the thread
-    engine.stop();
-    return 0;
+    // Remember the hidden bug fix here: pass *kernel instead of properties!
+    kernel->initialize(properties);
+
+    while (true) {
+        kernel->progress();
+    }
 }
