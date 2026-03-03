@@ -6,23 +6,19 @@ namespace Harmony
 {
     using EntityId = uint32_t;
 
-    class IKernel
+    class IKernel : public Extension
     {
     public:
-        explicit IKernel() = default;
-        virtual ~IKernel() = default;
+        HARMONY_EXTENSION_INTERFACE(IKernel, "kernal");
 
         virtual void initialize(const Properties& properties) = 0;
 
         virtual void progress() = 0;
 
-        virtual Extension& extension(const std::string& type) = 0;
-
-        // Pointer-returning API for graceful failure (returns nullptr if not found).
-        Extension* getExtension(const std::string& type);
+        virtual Extension* extension(const std::string& type) = 0;
 
         template<typename ExtensionType>
-        ExtensionType* getExtension();
+        ExtensionType* extension();
     };
 }
 

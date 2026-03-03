@@ -56,6 +56,13 @@ namespace Harmony
         });
     }
 
+    inline bool Registry::exists(const std::string& factoryName)
+    {
+        return m_registry.read([&](const RegistryMap& registry) {
+            return registry.contains(factoryName);
+        });
+    }
+
     template<typename Type, typename ...Args>
     inline std::unique_ptr<Type> Registry::create(const std::string& factoryName, Args&& ...args)
     {

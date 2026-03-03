@@ -12,19 +12,10 @@
 
 namespace Harmony {
 
-    // Properties provides a type-safe, JSON-backed configuration system.
-    // Values are stored in a schema-less JSON tree and accessed via typed get/set methods.
-    // Type conversion is performed through JSON serialization/deserialization round-trips.
     class Properties {
     public:
         using Keys = std::vector<std::string>;
 
-        // Path accepts both std::initializer_list<std::string_view> (for convenient inline
-        // usage like {"key1", "key2"}) and std::span<const std::string_view> (for backward
-        // compatibility with existing code passing arrays/spans).
-        // NOTE: Path is a non-owning view. When using initializer_list construction,
-        // the backing storage only lives until the end of the full expression.
-        // Use Path only as a function argument, not as a stored member.
         struct Path {
             std::span<const std::string_view> m_span;
 

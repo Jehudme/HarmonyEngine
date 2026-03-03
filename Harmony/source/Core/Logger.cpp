@@ -180,10 +180,6 @@ namespace Harmony {
     pimpl->spd_logger->set_level(spdlog::level::from_str(DEFAULT_LEVEL_STR));
     pimpl->spd_logger->flush_on(spdlog::level::from_str(DEFAULT_FLUSH_ON));
 
-    // 4. Register globally in spdlog registry (except for default logger)
-    if (name != DEFAULT_LOGGER_NAME) {
-        spdlog::register_logger(pimpl->spd_logger);
-    }
 }
 
     Logger::Logger(const Properties& properties) : Logger(DEFAULT_LOGGER_NAME, properties) {}

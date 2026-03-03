@@ -1,16 +1,12 @@
 #pragma once
 
 #include <string>
-#include <cstdint>
-#include <tuple>
 
 #include <Harmony/Utilities/Properties.h>
 #include "Harmony/Core/Extension.h"
 
 namespace Harmony
 {
-    class Engine;
-
     // Defines how the mouse cursor interacts with the window
     enum class CursorMode {
         Normal,   // Visible and behaves normally
@@ -28,8 +24,7 @@ namespace Harmony
     class IWindow : public Extension
     {
     public:
-        explicit IWindow(const std::string& name, IKernel& kernel) : Extension(name, "window", kernel) {}
-        ~IWindow() override = default;
+        HARMONY_EXTENSION_INTERFACE(IWindow, "window");
 
         // ==========================================
         // Lifecycle & Core Loop

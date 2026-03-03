@@ -28,6 +28,8 @@ namespace Harmony
 
         static void free(const std::string& factoryName);
 
+        static bool exists(const std::string& factoryName);
+
         template<typename Type, typename ...Args>
         static std::unique_ptr<Type> create(const std::string& factoryName, Args&& ...args);
 

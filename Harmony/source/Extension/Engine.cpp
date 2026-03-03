@@ -10,7 +10,7 @@
 
 namespace Harmony
 {
-    Engine::Engine(IKernel& kernel) : IEngine("engine", kernel)
+    Engine::Engine(IKernel& kernel) : IRunner("engine", kernel)
     {
     }
 

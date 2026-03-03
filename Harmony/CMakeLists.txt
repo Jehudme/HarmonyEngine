@@ -7,9 +7,6 @@ set(ENGINE_SOURCES
     source/Core/Extension.cpp
     source/Core/ContextLogger.cpp
     source/Core/Logger.cpp
-    source/Extension/Engine.cpp
-    source/Extension/Kernel.cpp
-    source/Extension/RaylibWindow.cpp
     source/Utilities/Properties.cpp
 )
 
@@ -22,16 +19,13 @@ set(ENGINE_HEADERS
     include/Harmony/Core/Registry.inl
     include/Harmony/Interfaces/IKernel.h
     include/Harmony/Interfaces/IKernel.inl
-    include/Harmony/Interfaces/IEngine.h
+    include/Harmony/Interfaces/IRunner.h
     include/Harmony/Interfaces/IWindow.h
     include/Harmony/Utilities/Guarded.h
     include/Harmony/Utilities/Guarded.inl
     include/Harmony/Utilities/Logger.inl
     include/Harmony/Utilities/Properties.h
     include/Harmony/Utilities/Properties.inl
-    source/Extension/Engine.h
-    source/Extension/Kernel.h
-    source/Extension/RaylibWindow.h
 )
 
 # Define the static library

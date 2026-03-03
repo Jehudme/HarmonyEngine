@@ -14,9 +14,6 @@ namespace Harmony {
         explicit Extension(const std::string& name, const std::string& type, IKernel& kernel);
         virtual ~Extension();
 
-        Extension& operator=(const Extension&) = delete;
-        Extension(const Extension&) = delete;
-
         virtual void initialize(const Properties& properties);
         virtual void finalize();
 
@@ -24,23 +21,20 @@ namespace Harmony {
         virtual void render();
         virtual void event();
 
-        [[nodiscard]] const std::string& getName() const;
-        [[nodiscard]] const std::string& getType() const;
+        [[nodiscard]] virtual const std::string& getName() const = 0;
+        [[nodiscard]] virtual const std::string& getType() const = 0;
 
     protected:
-        virtual void onInitialize(const Properties& properties) = 0;
-        virtual void onFinalize() = 0;
+        virtual void onInitialize(const Properties& properties);
+        virtual void onFinalize();
 
-        virtual void onUpdate() = 0;
-        virtual void onRender() = 0;
-        virtual void onEvent() = 0;
+        virtual void onUpdate();
+        virtual void onRender();
+        virtual void onEvent();
 
         Logger m_logger;
         std::atomic<State> m_state;
         IKernel& m_kernel;
-
-        const std::string m_name;
-        const std::string m_type;
 
     private:
         std::mutex m_lifecycleMutex;
@@ -52,12 +46,19 @@ namespace Harmony {
         ExtensionPtr instance;
     };
 
-#define HARMONY_DECLARE_EXTENSION(ExtTypeName)                              \
-    public:                                                                 \
-        static constexpr std::string_view EXTENSION_TYPE = ExtTypeName;     \
-        const std::string& getType() const override {                       \
-            static const std::string typeStr{EXTENSION_TYPE};               \
-            return typeStr;                                                 \
-        }
-
 }
+
+#define HARMONY_REGISTER_EXTENSION(CLASS) \
+    HARMONY_REGISTER(Harmony::Extension, CLASS, CLASS::GET_NAME(), Harmony::IKernel&)
+
+#define HARMONY_EXTENSION_INTERFACE(CLASS, TYPE)\
+    explicit CLASS(const std::string& name, Harmony::IKernel& kernel) : Extension(name, GET_TYPE(), kernel) {}\
+    static const std::string& GET_TYPE() { static std::string type =TYPE; return type; } \
+    const std::string& getType() const override { return GET_TYPE(); } \
+
+#define HARMONY_EXTENSION_IMPLEMTATION(INTERFACE, CLASS, NAME) \
+    explicit CLASS(Harmony::IKernel& kernel) : INTERFACE(NAME, kernel) {}\
+    static const std::string& GET_NAME() { static std::string name =NAME; return name; } \
+    const std::string& getName() const override { return GET_NAME(); } \
+
+

@@ -1,17 +1,17 @@
 #pragma once
-#include <Harmony/Interfaces/IEngine.h>
+#include <Harmony/Interfaces/IRunner.h>
 
 namespace Harmony
 {
     class IKernel;
 
-    class Engine : public IEngine
+    class Engine : public IRunner
     {
     public:
         explicit Engine(IKernel& kernel);
         ~Engine() override = default;
-        Engine& operator=(const IEngine&) = delete;
-        Engine(const IEngine&) = delete;
+        Engine& operator=(const IRunner&) = delete;
+        Engine(const IRunner&) = delete;
 
         Engine& operator=(Engine&&) noexcept = delete;
         Engine(Engine&&) noexcept = delete;

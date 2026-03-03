@@ -1,6 +1,4 @@
 cmake_minimum_required(VERSION 3.20)
-
-# Still good to keep this as a safety net for any deep nested dependencies
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 
 project(HarmonyWorkspace LANGUAGES C CXX)
@@ -44,8 +42,8 @@ FetchContent_Declare(flecs
         GIT_TAG        v4.1.4
 )
 
-# Rend toutes les dépendances disponibles pour le projet
 FetchContent_MakeAvailable(raylib glm spdlog glaze flecs)
 
+add_subdirectory(Extensions)
 add_subdirectory(Harmony)
 add_subdirectory(Sandbox)

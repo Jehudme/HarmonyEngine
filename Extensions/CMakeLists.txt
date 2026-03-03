@@ -1,58 +1,20 @@
-cmake_minimum_required(VERSION 3.20)
-
-project(Harmony LANGUAGES CXX)
-
-# Find source files
-file(GLOB_RECURSE ENGINE_SOURCES "source/*.cpp")
-file(GLOB_RECURSE ENGINE_HEADERS "include/*.h" "source/*.h")
+project(HarmonyExtensions LANGUAGES CXX)
 
 # Define the static library
-add_library(Harmony OBJECT ${ENGINE_SOURCES} ${ENGINE_HEADERS}
-        include/Harmony/Utilities/Properties.h
-        include/Harmony/Utilities/Properties.inl
-        source/Utilities/Logger.cpp
-        include/Harmony/Core/Logger.h
-        include/Harmony/Utilities/Logger.inl
-        include/Harmony/Utilities/Guarded.h
-        include/Harmony/Core/Extension.h
-        include/Harmony/Core/Controller.h
-        include/Harmony/Core/Service.h
-        source/Core/Extension.cpp
-        source/Core/Controller.cpp
-        source/Core/Service.cpp
-        include/Harmony/Interfaces/IWindow.h
-        include/Harmony/Core/Registry.h
-        include/Harmony/Core/Registry.inl
-        source/Core/Engine.cpp
-        include/Harmony/Core/Engine.h
-        include/Harmony/Interfaces/IKernel.h
-        include/Harmony/Core/Kernel.h
-        source/Core/Kernel.cpp
-        source/Core/Kernal.cpp
-        source/Modules/RaylibWindow.cpp
-        source/Modules/RaylibWindow.h
-        source/Core/ContextLogger.cpp
-        include/Harmony/Core/ContextLogger.h
+add_library(Extensions OBJECT
+        Runner/source/Runner.cpp
+        Kernel/source/Kernel.cpp
+        Window/source/Window.cpp
+        Window/source/Window.h
 )
 
-# Professional Scoping
-target_link_libraries(Harmony
-        PRIVATE
-        flecs::flecs       # Hidden ECS implementation
-        raylib             # Hidden implementation
-        spdlog::spdlog     # Hidden logging
-        glaze::glaze       # Hidden serialization
+# Links to the Core Engine (Interfaces) and implementation dependencies
+target_link_libraries(Extensions
         PUBLIC
-        glm::glm           # Exposed math for the Sandbox API
-)
-
-# Header management
-target_include_directories(Harmony
-        PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
+        Harmony::Engine    # Public so Sandbox inherits Core headers
         PRIVATE
-        "source"           # Internal headers
+        raylib             # Required for Window implementation
+        flecs::flecs       # Required for Kernel automation
 )
 
-# Namespace alias for professional usage
-add_library(Harmony::Engine ALIAS Harmony)
+add_library(Harmony::Extensions ALIAS Extensions)

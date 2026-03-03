@@ -9,8 +9,8 @@
         }
     },
     "extensions": {
-        "engine": {},
-        "window_raylib": {
+        "runner": {},
+        "raylib_window": {
             "width": 1280,
             "height": 720,
             "title": "Harmony Sandbox",

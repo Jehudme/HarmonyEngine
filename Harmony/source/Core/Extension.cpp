@@ -5,9 +5,7 @@
 namespace Harmony {
 
     Extension::Extension(const std::string& name, const std::string& type, IKernel& kernel) :
-        m_logger(name),
-        m_name(name), m_type(type), m_kernel(kernel),
-        m_state(State::Shutdown) {}
+        m_logger(name), m_kernel(kernel), m_state(State::Shutdown) {}
 
     Extension::~Extension() = default;
 
@@ -45,7 +43,9 @@ namespace Harmony {
         onEvent();
     }
 
-    const std::string& Extension::getName() const { return m_name; }
-    const std::string& Extension::getType() const { return m_type; }
-
+    void Extension::onInitialize(const Properties& properties) {}
+    void Extension::onFinalize() {}
+    void Extension::onUpdate() {}
+    void Extension::onRender() {}
+    void Extension::onEvent() {}
 } // namespace Harmony
