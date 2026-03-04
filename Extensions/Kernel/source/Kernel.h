@@ -11,22 +11,20 @@ namespace Harmony
 {
     class Kernel : public IKernel {
     public:
-        // 1. REMOVE the HARMONY_EXTENSION_IMPLEMTATION macro
-
-        // 2. Manually add the name getters the macro would have made
         static const std::string& GET_NAME() { static std::string name = "kernel"; return name; }
-        const std::string& getName() const override { return GET_NAME(); }
+        [[nodiscard]] const std::string& getName() const override { return GET_NAME(); }
 
         explicit Kernel();
         ~Kernel() override;
 
         void initialize(const Properties& properties) override;
-        void setupAutomation();
 
         void progress() override;
         Extension* extension(const std::string& type) override;
 
     private:
+        void setupAutomation();
+
         flecs::world m_world;
         Logger m_logger;
     };

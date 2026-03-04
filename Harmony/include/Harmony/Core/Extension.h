@@ -40,12 +40,6 @@ namespace Harmony {
         std::mutex m_lifecycleMutex;
     };
 
-    using ExtensionPtr = std::unique_ptr<Extension>;
-
-    struct ExtensionComponent {
-        ExtensionPtr instance;
-    };
-
 }
 
 #define HARMONY_REGISTER_EXTENSION(CLASS) \

@@ -13,6 +13,10 @@ int main()
     auto kernel = Harmony::Registry::create<Harmony::IKernel>("kernel");
 
     kernel->initialize(properties);
-    kernel->extension<Harmony::IRunner>()->run();
+    kernel->extension<Harmony::IRunner>()->start();
+
+    sleep(10);
+
+    kernel->extension<Harmony::IRunner>()->stop();
 
 }
