@@ -23,7 +23,8 @@ add_library(Harmony OBJECT
         include/Harmony/Utilities/Logger.inl
         include/Harmony/Utilities/Properties.h
         include/Harmony/Utilities/Properties.inl
-        include/Harmony/Interfaces/IStateStack.h
+        include/Harmony/Interfaces/IStateDirector.h
+        include/Harmony/Interfaces/IScene.h
 )
 
 # Professional Scoping

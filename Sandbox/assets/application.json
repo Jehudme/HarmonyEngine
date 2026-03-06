@@ -1,13 +1,4 @@
 {
-    "logger": {
-        "level": "trace",
-        "sinks": {
-            "console": {
-                "enabled": true,
-                "color": true
-            }
-        }
-    },
     "extensions": {
         "runner": {},
         "raylib_window": {
@@ -16,5 +7,13 @@
             "title": "Harmony Sandbox",
             "vsync": true
         }
+    },
+
+    "states": {
+        "main": ["main"]
+    },
+
+    "scenes": {
+        "main": {}
     }
 }

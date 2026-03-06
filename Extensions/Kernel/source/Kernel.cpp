@@ -3,10 +3,11 @@
 
 #include "Harmony/Core/Extension.h"
 #include "Harmony/Core/Registry.h"
+#include "Harmony/Interfaces/IScene.h"
 
 namespace Harmony
 {
-    Kernel::Kernel() : IKernel(GET_NAME(), *this), m_world(), m_logger(GET_NAME()) { setupAutomation(); }
+    Kernel::Kernel() : IKernel(GET_NAME(), *this), m_world() { setupAutomation(); }
     Kernel::~Kernel() = default;
 
     void Kernel::initialize(const Properties& properties)
@@ -28,13 +29,38 @@ namespace Harmony
                 extensionEntity.add(flecs::Module);
                 extensionRoot.add(extensionEntity);
 
-                extension(extensionType)->initialize(extensionProperties);
+                getExtension(extensionType)->initialize(extensionProperties);
                 m_logger->info("Initialized extension '{}'", extensionName);
 
             } else {
                 m_logger->error("Failed to initialize extension '{}'", extensionName);
             }
         });
+    }
+
+    void Kernel::createScene(const std::string& name)
+    {
+        flecs::entity scenes = m_world.entity("Kernel::Scenes"); m_world.scope(scenes);
+        Properties properties = getProperties().getSubProperties({"scenes", name}).value();
+
+        flecs::entity scene = m_world.entity(name.c_str());
+        std::unique_ptr<IScene> sceneInstance = Registry::create<IScene, IKernel&>(name, *this);
+    }
+
+    void Kernel::deleteScene(const std::string& name)
+    {
+        flecs::entity scenes = m_world.entity("Kernel::Scenes");
+
+    }
+
+    bool Kernel::getSceneActive(const std::string& name)
+    {
+        flecs::entity scenes = m_world.entity("Kernel::Scenes");
+
+    }
+
+    void Kernel::setSceneActive(const std::string& name, bool option)
+    {
     }
 
     void Kernel::setupAutomation() {
@@ -60,13 +86,13 @@ namespace Harmony
             });
     }
 
-    void Kernel::progress()
+    void Kernel::update()
     {
         HARMONY_CONTEXT_LOGGER_GUARD(m_logger.get());
         m_world.progress();
     }
 
-    Extension* Kernel::extension(const std::string& extensionType) {
+    Extension* Kernel::getExtension(const std::string& extensionType) {
         return m_world.entity(extensionType.c_str()).get<std::unique_ptr<Extension>>().get();
     }
 

@@ -48,7 +48,7 @@ namespace Harmony
             while (m_state.load(std::memory_order_acquire) != State::Shutdown)
             {
                 // Fail-safe: Check if the user clicked the 'X' on the window
-                if (m_kernel.extension<IWindow>()->shouldClose()) {
+                if (m_kernel.getExtension<IWindow>()->shouldClose()) {
                     m_logger->info("Window close requested. Initiating Runner shutdown.");
                     m_state.store(State::Shutdown, std::memory_order_release);
                     break;
@@ -58,7 +58,7 @@ namespace Harmony
 
                 if (currentState == State::Running)
                 {
-                    m_kernel.progress();
+                    m_kernel.update();
                 }
                 else if (currentState == State::Paused)
                 {

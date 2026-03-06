@@ -6,7 +6,7 @@ namespace Harmony
     class RaylibWindow final : public IWindow
     {
     public:
-        HARMONY_EXTENSION_IMPLEMTATION(IWindow, RaylibWindow, "raylib_window")
+        HARMONY_EXTENSION_IMPLEMTATION(IWindow, RaylibWindow, "default-raylib-window")
 
         // Extension overrides
         void onInitialize(const Properties& properties) override;

@@ -6,8 +6,8 @@ add_library(Extensions OBJECT
         Kernel/source/Kernel.cpp
         Window/source/Window.cpp
         Window/source/Window.h
-        StateStack/source/StateStack.h
-        StateStack/source/StateStack.cpp
+        StateDirector/source/StateDirector.h
+        StateDirector/source/StateDirector.cpp
 )
 
 # Links to the Core Engine (Interfaces) and implementation dependencies

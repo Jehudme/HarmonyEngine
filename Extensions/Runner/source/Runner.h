@@ -7,7 +7,7 @@ namespace Harmony
     class Runner : public IRunner
     {
     public:
-        HARMONY_EXTENSION_IMPLEMTATION(IRunner, Runner, "runner")
+        HARMONY_EXTENSION_IMPLEMTATION(IRunner, Runner, "default-runner")
 
         ~Runner() override;
 
